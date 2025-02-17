@@ -77,17 +77,17 @@ export const Login = () => {
 
   return (
     <>
-      <div className=" h-[93.3vh] items-center flex flex-col bg-cyan-200 justify-center ">
-        <div className=" flex flex-col gap-16 bg-cyan-50 p-14 px-14 rounded-lg ">
-          <h1 className="text-5xl text-center font-bold">Sign In</h1>
+      <div className=" h-[90vh] items-center flex flex-col bg-cyan-200 justify-center ">
+        <div className="  bg-cyan-50  p-5 rounded-lg ">
+          <h1 className="text-3xl text-center font-bold mb-5">Sign In</h1>
           <form
             action="#"
-            className="flex flex-col items-center gap-10"
+            className="flex flex-col items-center gap-5"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div className="flex flex-col items-center gap-10 ">
-              <div className=" flex  gap-2 flex-col w-[26vw]">
-                <label htmlFor="email" className="text-xl font-bold ">
+            <div className="flex flex-col items-center gap-5">
+              <div className=" flex  gap-2 flex-col w-[27vw]">
+                <label htmlFor="email" className="text-lg font-bold ">
                   Email:
                 </label>
                 <input
@@ -99,13 +99,13 @@ export const Login = () => {
                   {...register("email")}
                 />
                 {errors.email ? (
-                  <span className="text-red-500">{errors.email.message}</span>
+                  <span className="text-red-500 text-xs">{errors.email.message}</span>
                 ) : (
-                  <span className="text-red-500 invisible">""</span>
+                  <span className="text-red-500 text-xs invisible">""</span>
                 )}
               </div>
-              <div className=" flex  gap-2 flex-col w-[26vw]">
-                <label htmlFor="password" className="text-xl  font-bold ">
+              <div className=" flex  gap-2 flex-col w-[27vw]">
+                <label htmlFor="password" className="text-lg  font-bold ">
                   Password:
                 </label>
                 <input
@@ -118,11 +118,11 @@ export const Login = () => {
                   autoComplete="on"
                 />
                 {errors.password ? (
-                  <span className="text-red-500 transition-all ease-in-out 3s">
+                  <span className="text-red-500 text-xs transition-all ease-in-out 3s">
                     {errors.password.message}
                   </span>
                 ) : (
-                  <span className="text-red-500 invisible">
+                  <span className="text-red-500 text-xs invisible ">
                     ""
                   </span>
                 )}
@@ -130,7 +130,7 @@ export const Login = () => {
             </div>
             <button
               type="submit"
-              className="text-xl border-black border-2 p-2 px-5 bg-black text-white rounded transition ease-in-out delay-150  hover:scale-105 hover:bg-slate-800 duration-500"
+              className="text-md border-black border-2 p-1 px-3 bg-black text-white rounded transition ease-in-out delay-150  hover:scale-105 hover:bg-slate-800 duration-500"
             >
               Login
             </button>

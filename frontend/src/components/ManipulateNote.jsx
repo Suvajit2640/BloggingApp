@@ -7,6 +7,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
+import closeIcon from "../assets/closeIcon.jpg"
 
 // validating the schema
 const validateNote = z.object({
@@ -124,28 +125,28 @@ export const ManipulateNote = ({
       <>
         <div className="note-container relative">
           <button
-            className="absolute top-20 right-7 text-xl
+            className="absolute top-5 right-7 text-xl
                                text-black hover:text-gray-700"
             onClick={onClose}
           >
-            &#x2715;
+            <img src={closeIcon} alt="" className="w-8"/>
           </button>{" "}
-          <div className=" h-[90.8vh] items-center flex flex-col  justify-center m-0 p-0">
+          <div className="  items-center flex flex-col  justify-center m-0 p-0">
             {" "}
-            <div className=" flex flex-col gap-16 bg-[#0077b6] p-5 rounded-lg ">
+            <div className=" flex flex-col gap-7 bg-[#0077b6] p-2 rounded-lg  h-[90vh] w-[45vw] items-center justify-center">
               {" "}
               <form
                 action="#"
-                className="flex flex-col items-center gap-10 "
+                className="flex flex-col items-center gap-3 "
                 onSubmit={handleSubmit(onSubmit)}
               >
-                <div className="flex flex-col  gap-10 justify-center items-center p-6">
-                  <h1 className="font-bold text-5xl text-white">
+                <div className="flex flex-col  gap-10 justify-center items-center p-3">
+                  <h1 className="font-bold text-3xl text-white">
                     {type.header} Post
                   </h1>
-                  <div className=" flex  gap-5 flex-col">
+                  <div className=" flex  gap-1 flex-col">
                     <input
-                      className="placeholder:text-gray-500 placeholder:italic placeholder:text-5xl min-w-[40vw] min-h-[10vh] placeholder:font-semibold p-5 text-5xl"
+                      className="placeholder:text-gray-500 placeholder:italic placeholder:text-2xll min-w-[40vw] min-h-[10vh] placeholder:font-semibold p-2 text-2x"
                       type="text"
                       id=""
                       placeholder="New note title here..."
@@ -171,16 +172,16 @@ export const ManipulateNote = ({
                       placeholder="Write your content here..."
                       id="content"
                       defaultValue={type.NoteContent}
-                      className="min-h-[35vh] p-5 placeholder:text-2xl text-2xl"
+                      className="min-h-[35vh] p-2 placeholder:text-2xl text-2xl"
                       {...register("content")}
                     />
                   </div>
                 </div>
                 <button
                   type="submit"
-                  className="text-xl border-black border-2 p-2 px-5 bg-blue-100  rounded transition ease-in-out delay-150  hover:scale-105 hover:bg-slate-800 duration-500 hover:text-white"
+                  className="text-xl border-black border-2 p-2 px-5 bg-blue-100  rounded transition ease-in-out delay-150  hover:scale-105 hover:bg-cyan-500 duration-500 hover:text-white"
                 >
-                  {type.header}
+                  Save
                 </button>
               </form>
             </div>

@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "nodemon app.js",
-    "lint": "./node_modules/.bin/eslint src/**/*.js --fix",
-    "seed": "node ./src/seed/index.js"
-  },
+  
+"scripts": {
+"start": "nodemon src/app.js"
+
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",

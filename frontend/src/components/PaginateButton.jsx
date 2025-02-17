@@ -22,16 +22,19 @@ export const PaginateButton = ({ page, setPage, setrender, render }) => {
   }, [access, render]);
   return (
     <>
-      <div className="button-container flex items-center gap-3 justify-center absolute start-[44%] bottom-0">
+    <div className="w-[100vw] absolute bottom-0 flex justify-center">
+
+      <div className="button-container flex items-center gap-3  ">
         <button onClick={prevPage}>
-          <BsFillArrowLeftCircleFill size={40} />
+          <BsFillArrowLeftCircleFill size={30} />
         </button>
 
-        <span className="text-3xl  p-3 rounded">Page-{page}</span>
+        <span className="text-2xl  p-3 rounded">Page-{page}</span>
         <button onClick={nextPage}>
-          <BsFillArrowRightCircleFill size={40} />
+          <BsFillArrowRightCircleFill size={30} />
         </button>
       </div>
+    </div>
     </>
   );
 };

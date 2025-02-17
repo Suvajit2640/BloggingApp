@@ -62,87 +62,87 @@ export const Register = () => {
 
   return (
     <>
-      <div className="registration-form h-[93.3vh] items-center flex flex-col bg-cyan-200 justify-center ">
-        <div className="registration-heading-input-container  flex flex-col gap-16 bg-cyan-50 p-14 px-14 rounded-lg ">
-          <h1 className="text-5xl text-center font-bold">Sign Up</h1>
+      <div className=" max-h-[90vh]  items-center flex flex-col bg-cyan-200 justify-center ">
+        <div className="  bg-cyan-50  p-5 rounded-lg max-h-[85vh] flex flex-col m-10" >
+          <h1 className="text-3xl text-center font-bold mb-3 ">Sign Up</h1>
           <form
             action="#"
-            className="flex flex-col items-center gap-10"
+            className=" flex  flex-col items-center  "
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div className="registration-input-container flex flex-col items-center gap-10 ">
-              <div className="registration-input flex  gap-2 flex-col w-[26vw]">
-                <label htmlFor="name" className="text-xl font-bold ">
-                  Name:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your name"
-                  id="username"
-                  name="username"
-                  className="p-2  border-2 rounded"
-                  {...register("userName")}
-                />
+            <div className="flex gap-2 flex-col w-[27vw]">
+              <label htmlFor="name" className="text-xl font-bold ">
+                Name:
+              </label>
+              <input
+                type="text"
+                placeholder="Enter your name"
+                id="username"
+                name="username"
+                className="p-2  border-2 rounded"
+                {...register("userName")}
+              />
 
-                {errors.userName ? (
-                  <span className="text-red-500">
-                    {errors.userName.message}
-                  </span>
-                ) : (
-                  <span className="text-red-500 invisible">
-                   ""
-                  </span>
-                )}
-              </div>
-              <div className="registration-input flex  gap-2 flex-col w-[26vw]">
-                <label htmlFor="email" className="text-xl font-bold ">
-                  Email:
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  id="useremail"
-                  className="p-2 border-2 rounded "
-                  {...register("email")}
-                />
-                {errors.email ? (
-                  <span className="text-red-500">{errors.email.message}</span>
-                ) : (
-                  <span className="text-red-500 invisible">""</span>
-                )}
-              </div>
-              <div className="registration-input flex  gap-2 flex-col w-[26vw]">
-                <label htmlFor="password" className="text-xl  font-bold ">
-                  Password:
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  id="userpassword"
-                  className="p-2 border-2 rounded  "
-                  autoComplete="on"
-                  {...register("password")}
-                />
-                {errors.password ? (
-                  <span className="text-red-500 transition-all ease-in-out 3s">
-                    {errors.password.message}
-                  </span>
-                ) : (
-                  <span className="text-red-500 invisible">""</span>
-                )}
-              </div>
+              {errors.userName ? (
+                <span className="text-red-500 text-xs">
+                  {errors.userName.message}
+                </span>
+              ) : (
+                <span className="text-red-500 invisible text-xs">""</span>
+              )}
+            </div>
+
+            <div className=" flex  gap-2 flex-col w-[27vw]">
+              <label htmlFor="email" className="text-lg font-bold ">
+                Email:
+              </label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                id="useremail"
+                className="p-2 border-2 rounded "
+                {...register("email")}
+              />
+              {errors.email ? (
+                <span className="text-red-500 text-xs">
+                  {errors.email.message}
+                </span>
+              ) : (
+                <span className="text-red-500 text-xs invisible">""</span>
+              )}
+            </div>
+            <div className=" flex  gap-2 flex-col w-[27vw]">
+              <label htmlFor="password" className="text-lg  font-bold ">
+                Password:
+              </label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                id="userpassword"
+                className="p-2 border-2 rounded "
+                {...register("password")}
+                autoComplete="on"
+              />
+              {errors.password ? (
+                <span className="text-red-500 text-xs transition-all ease-in-out 3s">
+                  {errors.password.message}
+                </span>
+              ) : (
+                <span className="text-red-500 text-xs invisible ">""</span>
+              )}
             </div>
             <button
               type="submit"
-              className="text-xl border-black border-2 p-2 px-5 bg-black text-white rounded transition ease-in-out delay-150  hover:scale-105 hover:bg-slate-800 duration-500"
+              className="text-md border-black border-2 p-1 px-3 bg-black text-white rounded transition ease-in-out delay-150  hover:scale-105 hover:bg-slate-800 duration-500"
             >
               Register
             </button>
           </form>
         </div>
       </div>
+      ;
     </>
   );
 };

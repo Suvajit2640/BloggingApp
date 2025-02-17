@@ -8,6 +8,7 @@ config();
 
 const PORT = process.env.PORT;
 const app = express();
+console.log('hello');
 
 app.use(cors());
 
