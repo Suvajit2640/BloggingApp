@@ -21,6 +21,8 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/LandingPage" element={<LandingPage />} />
+
           <Route path="/Register" element={<Register />} />
           <Route path="/verify/:token" element={<VerifyPage />} />
           <Route path="/Login" element={<Login />} />

@@ -3,8 +3,10 @@ import { Link } from "react-router-dom"; // corrected import for react-router-do
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { LuCircleUserRound } from "react-icons/lu";
 import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
+  const navigate = useNavigate();
   const { isLogin, setIsLogin } = useContext(UserContext);
 
   let username = localStorage.getItem("username");
@@ -25,10 +27,12 @@ export const Navbar = () => {
     setIsLogin(false);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("username");
+    localStorage.removeItem("refreshToken");
+  
   };
 
   return (
-    <nav className="navbar flex justify-between p-3 px-15 bg-cyan-100 max-h-[10vh]">
+    <nav className="navbar flex justify-between p-3 px-15 bg-cyan-100 h-[10vh]">
       <div className="nav-heading-container flex items-center gap-2 hover:cursor-pointer">
         <Link to="Notes" className="flex gap-2 items-center">
           <div className="nav-icon">
@@ -46,7 +50,7 @@ export const Navbar = () => {
             <LuCircleUserRound size={40} className="cursor-pointer" />
             <li onClick={logout}>
               <Link
-                to="Login"
+                to="LandingPage"
                 className="text-md border-black border-2 p-1 px-3 bg-black text-white rounded transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-slate-800 duration-300"
               >
                 Logout

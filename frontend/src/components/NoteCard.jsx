@@ -11,7 +11,10 @@ export const NoteCard = ({
   setType,
   search,
   page,
-  setPage
+  total,
+  setTotal,
+  sortField,
+  sortOrder,
 }) => {
   const username = localStorage.getItem("username");
   const access = localStorage.getItem("accessToken");
@@ -35,8 +38,9 @@ export const NoteCard = ({
   const fetchInfo = async () => {
     const title = search;
     const response = await axios.post(
-      `http://localhost:8000/note/getAllnote?sortField=title&sortOrder=asc&page=${page}&limit=6`,
-      {title},
+      `http://localhost:8000/note/getAllnote?sortField=${sortField}&sortOrder=${sortOrder}&page=${page}&limit=3`,
+
+      { title },
       {
         headers: {
           Authorization: `Bearer ${access}`,
@@ -44,6 +48,9 @@ export const NoteCard = ({
         },
       }
     );
+
+    await setTotal(response.data.total);
+
     data = await response.data.data;
     data.forEach((value) => {
       let date = value.createdAt;
@@ -66,10 +73,11 @@ export const NoteCard = ({
           },
         }
       );
-      console.log(response);
+
       if (response.data.status === 200) {
         notify("success");
         setrender(!render);
+        setTotal(total - 1);
       }
       if (response.data.status === 404) {
         notify("not exist");
@@ -105,7 +113,7 @@ export const NoteCard = ({
                              text-gray-500 hover:text-gray-700"
             onClick={onClose}
           >
-            &#x2715; {/* Close button */}
+            &#x2715; 
           </button>
           {children}
         </div>
@@ -149,13 +157,13 @@ export const NoteCard = ({
       {cards.map((dataObj, index) => {
         return (
           <div
-            className="note-card-container flex gap-7 max-w-md flex-col m-5 border-2 border-black p-5 rounded-md transition ease-in-out delay-200 hover:scale-105 cursor-pointer"
-            key={index}
+            className="note-card-container flex gap-7 flex-col m-5 border-2 border-black p-5 rounded-md transition ease-in-out delay-200 hover:scale-105 cursor-pointer hover:border-blue-500 max-w-96"
+            key={index} 
           >
             <div className="note-profile-button flex items-center  justify-between gap-5">
               <div className="profile flex gap-3  flex-col">
                 <p>{username}</p>
-                <p>Created On: {dataObj.createdAt}</p>
+                <p className="font-semibold">Created On: {dataObj.createdAt}</p>
               </div>
               <div className="note-button-container flex gap-5 ">
                 <EditNote
@@ -176,8 +184,8 @@ export const NoteCard = ({
             </div>
 
             <div className="note-title-content  flex flex-col gap-5">
-              <h3 className="text-5xl">{dataObj.title}</h3>
-              <p className="text-lg break-words overflow-scroll h-24 ">
+              <h3 className="text-3xl">{dataObj.title}</h3>
+              <p className="text-lg overflow-x-auto h-24 break-words flex flex-col">
                 {dataObj.content}
               </p>
             </div>

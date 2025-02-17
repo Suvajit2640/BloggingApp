@@ -68,7 +68,9 @@ export const ManipulateNote = ({
   // handling submit button
   const onSubmit = async (data) => {
     try {
-      console.log(data)
+      data.title = data.title.trim();
+      data.content=data.content.trim();
+    
       let method, Route;
       type.header === "Create"
         ? ((method = axios.post),
@@ -153,7 +155,6 @@ export const ManipulateNote = ({
                       autoComplete="off"
                       aria-label="Post Title"
                       autoFocus="on"
-                      defaultValue={title}
                       {...register("title")}
         
                     />
@@ -171,7 +172,6 @@ export const ManipulateNote = ({
                       type="text"
                       placeholder="Write your content here..."
                       id="content"
-                      defaultValue={type.NoteContent}
                       className="min-h-[35vh] p-2 placeholder:text-2xl text-2xl"
                       {...register("content")}
                     />

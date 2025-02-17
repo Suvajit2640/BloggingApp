@@ -8,12 +8,15 @@ import { PaginateButton } from "../components/PaginateButton";
 
 export const NotesPage = () => {
   const navigate = useNavigate();
-
+  
   const access = localStorage.getItem("accessToken");
   const [render, setrender] = useState();
   const [search, setSearch] = useState("");
   const [isModalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [total,setTotal]=useState(1);
+  const [sortField, setSortField] = useState("title"); 
+  const [sortOrder, setSortOrder] = useState("asc"); 
 
   const [type, setType] = useState({
     header: "Create",
@@ -25,7 +28,7 @@ export const NotesPage = () => {
 
   useEffect(() => {
     if (!access) {
-      navigate("/login");
+      navigate("/LandingPage");
     }
   }, [access, navigate, render]);
 
@@ -40,6 +43,10 @@ export const NotesPage = () => {
             render={render}
             search={search}
             setSearch={setSearch}
+            sortField={sortField}
+            setSortField={setSortField}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
           />
 
           <ManipulateNote
@@ -62,6 +69,10 @@ export const NotesPage = () => {
             setSearch={setSearch}
             page={page}
             setPage={setPage}
+            total={total}
+            setTotal={setTotal}
+            sortField={sortField} 
+            sortOrder={sortOrder} 
           />
         </div>
         <PaginateButton
@@ -69,6 +80,8 @@ export const NotesPage = () => {
           setPage={setPage}
           setrender={setrender}
           render={render}
+          total={total}
+          setTotal={setTotal}
         ></PaginateButton>
       </div>
     </>

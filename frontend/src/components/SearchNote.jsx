@@ -5,18 +5,26 @@ import { useEffect } from "react";
 import { SortNote } from "./SortNote";
 import { useNavigate } from "react-router-dom";
 
-export const SearchNote = ({ setrender, render, setSearch }) => {
+export const SearchNote = ({
+  setrender,
+  render,
+  setSearch,
+  sortField,
+  setSortField,
+  sortOrder,
+  setSortOrder,
+}) => {
   // fetching access token
 
   const access = localStorage.getItem("accessToken");
 
   // use form hook
-  const { register, handleSubmit,  formState } = useForm({});
+  const { register, handleSubmit, formState } = useForm({});
 
   // submit button -----------------
-  const onSubmit =  (data) => {
+  const onSubmit = (data) => {
     setSearch(data.title);
-    setrender(!render)
+    setrender(!render);
   };
 
   // monitoring changes
@@ -31,10 +39,17 @@ export const SearchNote = ({ setrender, render, setSearch }) => {
     <>
       <form
         action="#"
-        className="flex flex-col items-center gap-10"
+        className="flex  items-center gap-5"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <SortNote></SortNote>
+        <SortNote
+          sortField={sortField}
+          setSortField={setSortField}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          render={render}
+          setrender={setrender}
+        ></SortNote>
         <div className="flex  items-center gap-10 relative w-full cursor-pointer">
           <div className=" flex  ">
             <input

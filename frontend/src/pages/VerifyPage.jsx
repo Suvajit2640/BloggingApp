@@ -13,7 +13,6 @@ export const VerifyPage = () => {
           Authorization: "Bearer " + token,
         };
         const response = await axios.get(`http://localhost:8000/verify`);
-        console.log(response);
         setMessage("Email verified successfully!");
       } catch (e) {
         console.log(e);

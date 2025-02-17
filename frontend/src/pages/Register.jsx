@@ -5,6 +5,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
+import { FaEye } from "react-icons/fa";
+import { FaRegEyeSlash } from "react-icons/fa";
+
 
 const validateRegister = z.object({
   userName: z
@@ -23,6 +27,7 @@ const validateRegister = z.object({
 });
 
 export const Register = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -62,16 +67,16 @@ export const Register = () => {
 
   return (
     <>
-      <div className=" max-h-[90vh]  items-center flex flex-col bg-cyan-200 justify-center ">
-        <div className="  bg-cyan-50  p-5 rounded-lg max-h-[85vh] flex flex-col m-10" >
-          <h1 className="text-3xl text-center font-bold mb-3 ">Sign Up</h1>
+      <div className="h-[90vh] items-center flex flex-col bg-cyan-200 justify-center overflow-hidden">
+        <div className="bg-cyan-50 p-5 rounded-lg flex flex-col m-10 w-[27vw] h-[90vh]">
+          <h1 className="text-3xl text-center font-bold mb-3">Sign Up</h1>
           <form
             action="#"
-            className=" flex  flex-col items-center  "
+            className="flex flex-col items-center gap-3"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div className="flex gap-2 flex-col w-[27vw]">
-              <label htmlFor="name" className="text-xl font-bold ">
+            <div className="flex gap-2 flex-col w-full">
+              <label htmlFor="name" className="text-lg font-bold">
                 Name:
               </label>
               <input
@@ -79,21 +84,18 @@ export const Register = () => {
                 placeholder="Enter your name"
                 id="username"
                 name="username"
-                className="p-2  border-2 rounded"
+                className="p-2 border-2 rounded"
                 {...register("userName")}
               />
-
-              {errors.userName ? (
-                <span className="text-red-500 text-xs">
-                  {errors.userName.message}
-                </span>
-              ) : (
-                <span className="text-red-500 invisible text-xs">""</span>
-              )}
+                {errors.userName ? (
+                  <span className="text-red-500 text-xs">{errors.userName.message}</span>
+                ) : (
+                  <span className="text-red-500 text-xs invisible">""</span>
+                )}
             </div>
 
-            <div className=" flex  gap-2 flex-col w-[27vw]">
-              <label htmlFor="email" className="text-lg font-bold ">
+            <div className="flex gap-2 flex-col w-full">
+              <label htmlFor="email" className="text-lg font-bold">
                 Email:
               </label>
               <input
@@ -101,48 +103,53 @@ export const Register = () => {
                 name="email"
                 placeholder="Enter your email"
                 id="useremail"
-                className="p-2 border-2 rounded "
+                className="p-2 border-2 rounded"
                 {...register("email")}
               />
-              {errors.email ? (
-                <span className="text-red-500 text-xs">
-                  {errors.email.message}
-                </span>
-              ) : (
-                <span className="text-red-500 text-xs invisible">""</span>
-              )}
+                {errors.email ? (
+                  <span className="text-red-500 text-xs">{errors.email.message}</span>
+                ) : (
+                  <span className="text-red-500 text-xs invisible">""</span>
+                )}
             </div>
-            <div className=" flex  gap-2 flex-col w-[27vw]">
-              <label htmlFor="password" className="text-lg  font-bold ">
+
+            <div className="flex gap-2 flex-col w-full relative">
+              <label htmlFor="password" className="text-lg font-bold">
                 Password:
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
                 id="userpassword"
-                className="p-2 border-2 rounded "
+                className="p-2 border-2 rounded w-full"
                 {...register("password")}
                 autoComplete="on"
               />
+              <div
+                className="absolute right-3 top-12 transform cursor-pointer"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <FaEye /> : <FaRegEyeSlash />}
+              </div>
               {errors.password ? (
-                <span className="text-red-500 text-xs transition-all ease-in-out 3s">
-                  {errors.password.message}
-                </span>
-              ) : (
-                <span className="text-red-500 text-xs invisible ">""</span>
-              )}
+                  <span className="text-red-500 text-xs transition-all ease-in-out 3s">
+                    {errors.password.message}
+                  </span>
+                ) : (
+                  <span className="text-red-500 text-xs invisible">""</span>
+                )}
             </div>
+
             <button
               type="submit"
-              className="text-md border-black border-2 p-1 px-3 bg-black text-white rounded transition ease-in-out delay-150  hover:scale-105 hover:bg-slate-800 duration-500"
+              className="text-md border-black border-2 p-1 px-3 bg-black text-white rounded transition ease-in-out delay-150 hover:scale-105 hover:bg-slate-800 duration-500"
             >
               Register
             </button>
           </form>
         </div>
       </div>
-      ;
     </>
   );
 };

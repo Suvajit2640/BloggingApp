@@ -73,9 +73,11 @@ export const updateNote = async (req, res) => {
   try {
     const _id = req.params.id;
     const { title, content } = req.body;
+    
     const existing = await noteSchema.findOne({
-      title: req.body.title,
+      title: title,
       userId: req.userId,
+      _id: { $ne: _id }, // Exclude the note being updated
     });
 
     if (existing) {
@@ -84,6 +86,7 @@ export const updateNote = async (req, res) => {
         message: "This title Already Exists",
       });
     }
+
     const updated_result = await noteSchema.findByIdAndUpdate(
       { _id },
       {
@@ -164,7 +167,7 @@ export const getAllNote = async (req, res) => {
     res.json({
       status: 200,
       data: data,
-      total: await noteSchema.find({ userId: req.userId }).countDocuments(), 
+      total: await noteSchema.find({ userId: req.userId }).countDocuments(),
     });
   } catch (error) {
 
