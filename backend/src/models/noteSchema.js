@@ -16,10 +16,9 @@ const noteSchema = new mongoose.Schema({
     ref: "user",
     required: true,
   },
-  file: {
-    type: String,
-  },
+
   createdAt: { type: Date, required: true, default: null },
+  
   updatedAt: { type: Date, required: true, default: null },
 });
 

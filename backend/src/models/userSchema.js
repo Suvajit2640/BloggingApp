@@ -25,6 +25,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     select:false
   },
+  file: {
+    type: String,
+  },
 });
 
 export default mongoose.model("user", userSchema);

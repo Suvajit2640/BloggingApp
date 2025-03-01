@@ -14,7 +14,7 @@ noteRoute.delete("/delete/:id",decodeToken,isLoggedIn,deleteNote)
 noteRoute.post("/search",decodeToken,isLoggedIn,searchNote) 
 noteRoute.get("/sort",decodeToken,isLoggedIn,sortNotes)
 noteRoute.get("/getuseroffset",decodeToken,isLoggedIn,getUsersOffset)
-noteRoute.post("/fileupload/:id",decodeToken,isLoggedIn,upload.single("file"),fileUpload)
+noteRoute.post("/fileupload",decodeToken,isLoggedIn,upload.single("file"),fileUpload)
 noteRoute.post("/getAllnote",decodeToken,isLoggedIn,getAllNote)
 
 export default noteRoute;

@@ -26,7 +26,7 @@ export const VerifyPage = () => {
   }, [token]);
 
   return (
-    <div>
+    <div className="flex items-center justify-center w-full">
       <p>{message}</p>
     </div>
   );

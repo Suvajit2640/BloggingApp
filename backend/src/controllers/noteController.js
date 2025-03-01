@@ -1,6 +1,7 @@
 import noteSchema from "../models/noteSchema.js";
 import path from "path";
 import multer from "multer";
+import userSchema from "../models/userSchema.js";
 
 
 //  creating note
@@ -73,7 +74,7 @@ export const updateNote = async (req, res) => {
   try {
     const _id = req.params.id;
     const { title, content } = req.body;
-    
+
     const existing = await noteSchema.findOne({
       title: title,
       userId: req.userId,
@@ -278,27 +279,36 @@ const storage = multer.diskStorage({
   },
 });
 
+// file filter
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Error: File upload only supports the following filetypes - ' + filetypes));
+  }
+};
+
 export const fileUpload = async (req, res) => {
   try {
-    const id = req.params.id;
+    const userId = req.userId;
+    const user = await userSchema.findById(userId)
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
-    const Note = await noteSchema.findById(id);
-    if (Note) {
-      Note.file = "http://localhost:8000/" + req.file.path;
-      await Note.save();
-      return res.status(200).json({
-        success: true,
-        message: `File uploaded : ${req.file.filename}`,
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: "error in uploading file no note schema found",
-      });
-    }
+    user.file = "http://localhost:8000/" + req.file.path;
+    await user.save();
+    return res.status(200).json({
+      success: true,
+      message: `File uploaded : ${req.file.filename}`,
+      file: user.file
+    });
+
   } catch (error) {
+    console.log(error)
     res.json({
       status: 404,
       message: "error in uploading file",
@@ -310,4 +320,5 @@ export const fileUpload = async (req, res) => {
 export const upload = multer({
   storage: storage,
   limits: { fileSize: 1000000 }, // Limit file size to 1MB
+  fileFilter: fileFilter, // Use the file filter
 });
