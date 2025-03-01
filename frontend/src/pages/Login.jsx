@@ -44,10 +44,11 @@ export const Login = () => {
           "Content-Type": "application/json",
         },
       });
-      const { token, refreshToken, username } = await response.data;
+      const { token, refreshToken, username ,file} = await response.data;
       localStorage.setItem("accessToken", token);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("username", username);
+      localStorage.setItem("profileImage",file)
 
       axios.defaults.headers = {
         Authorization: "Bearer " + token,

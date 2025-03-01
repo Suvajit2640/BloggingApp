@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from "react";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { LuCircleUserRound } from "react-icons/lu";
 import { UserContext } from "../context/UserContext";
@@ -7,10 +7,9 @@ import { useNavigate } from "react-router-dom";
 import { ProfileModal } from "./profile";
 
 export const Navbar = () => {
-
   const navigate = useNavigate();
   const { isLogin, setIsLogin } = useContext(UserContext);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
 
   let username = localStorage.getItem("username");
@@ -18,6 +17,17 @@ export const Navbar = () => {
     username = username.split(" ")[0].trim();
   }
   let access = localStorage.getItem("accessToken");
+
+  const logout = () => {
+    setIsLogin(false);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("username");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("profileImage");
+    navigate("/LandingPage");
+    setProfileImage("")
+  };
+
   useEffect(() => {
     if (access === null) {
       setIsLogin(false);
@@ -26,26 +36,17 @@ export const Navbar = () => {
     }
     const storedImage = localStorage.getItem("profileImage");
     if (storedImage) {
-      setProfileImage(storedImage); 
+      setProfileImage(storedImage);
     }
   }, [access, setIsLogin]);
 
-  const logout = () => {
-    setIsLogin(false);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("username");
-    localStorage.removeItem("refreshToken");
-    navigate("/LandingPage"); 
-  };
-
   const openProfileModal = () => {
-    setIsModalOpen(true); 
+    setIsModalOpen(true);
   };
 
   const closeProfileModal = () => {
-    setIsModalOpen(false); 
+    setIsModalOpen(false);
   };
-
 
   const handleImageUpload = (imageUrl) => {
     localStorage.setItem("profileImage", imageUrl);
@@ -76,7 +77,11 @@ export const Navbar = () => {
                   onClick={openProfileModal}
                 />
               ) : (
-                <LuCircleUserRound size={40} className="cursor-pointer" onClick={openProfileModal} />
+                <LuCircleUserRound
+                  size={40}
+                  className="cursor-pointer"
+                  onClick={openProfileModal}
+                />
               )}
               <li onClick={logout}>
                 <Link
@@ -112,7 +117,11 @@ export const Navbar = () => {
         )}
       </nav>
 
-      <ProfileModal isOpen={isModalOpen} onClose={closeProfileModal} onImageUpload={handleImageUpload}/>
+      <ProfileModal
+        isOpen={isModalOpen}
+        onClose={closeProfileModal}
+        onImageUpload={handleImageUpload}
+      />
     </>
   );
 };
