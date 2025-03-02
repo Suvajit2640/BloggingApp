@@ -61,7 +61,7 @@ export const Navbar = () => {
               <HiOutlinePencilSquare size={30} />
             </div>
             <div className="nav-heading font-bold text-xl">
-              <h2>Notes app</h2>
+              <h2>NoteWorthy</h2>
             </div>
           </Link>
         </div>

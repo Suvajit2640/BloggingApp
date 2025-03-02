@@ -94,7 +94,8 @@ export const updateNote = async (req, res) => {
         title: title,
         content: content,
         updatedAt: Date.now(),
-      }
+      },
+      { new: true }
     );
     if (updated_result) {
       res.json({
