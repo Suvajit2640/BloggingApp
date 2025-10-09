@@ -12,7 +12,7 @@ export const SortNote = ({ sortField, setSortField, sortOrder, setSortOrder,rend
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 ">
       <button onClick={toggleSortOrder} >
         {sortOrder === "asc" ? <FaArrowUp /> : <FaArrowDown />}
       </button>

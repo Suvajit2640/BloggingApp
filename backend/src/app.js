@@ -17,6 +17,9 @@ app.use("/uploads", express.static("uploads"));
 
 dbconnect();
 
-app.listen(PORT, () => {
-  console.log(`server listening on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`server listening on port ${PORT}`);
+// });
+
+export default app;
+
