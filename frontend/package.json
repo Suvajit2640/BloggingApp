@@ -12,7 +12,9 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@material-tailwind/react": "^2.1.10",
+    "antd": "^5.24.7",
     "axios": "^1.7.9",
+    "client": "^0.0.1",
     "dotenv": "^16.4.7",
     "lodash": "^4.17.21",
     "react": "^19.0.0",
@@ -21,6 +23,8 @@
     "react-icons": "^5.4.0",
     "react-router-dom": "^7.1.5",
     "react-toastify": "^11.0.3",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
