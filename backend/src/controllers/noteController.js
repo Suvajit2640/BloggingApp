@@ -270,15 +270,15 @@ export const getUsersOffset = async (req, res) => {
 };
 
 // file upload
-const storage = multer.diskStorage({
-  destination: "./uploads",
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: "./uploads",
+//   filename: function (req, file, cb) {
+//     cb(
+//       null,
+//       file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+//     );
+//   },
+// });
 
 // file filter
 const fileFilter = (req, file, cb) => {
@@ -317,9 +317,9 @@ export const fileUpload = async (req, res) => {
     });
   }
 };
-
+const storage = undefined;
 export const upload = multer({
-  storage: storage,
-  limits: { fileSize: 1000000 }, // Limit file size to 1MB
-  fileFilter: fileFilter, // Use the file filter
+  storage: storage, 
+  limits: { fileSize: 1000000 }, 
+  fileFilter: fileFilter, 
 });
