@@ -1,52 +1,81 @@
 import jwt from "jsonwebtoken";
 import userSchema from "../models/userSchema.js";
+import dbconnect from "../config/dbConnection.js";
 
 export const decodeToken = async (req, res, next) => {
-  let accessToken;
   try {
+    // ✅ Connect to DB first
+    await dbconnect();
+
     const authHeader = req.headers.authorization;
 
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: "No authorization header provided",
+      });
+    }
+
+    // Extract token
+    let accessToken;
     if (authHeader.includes("Bearer")) {
       accessToken = authHeader.split(" ")[1];
     } else {
       accessToken = authHeader;
     }
+
     if (!accessToken) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({
+        success: false,
+        message: "No token provided",
+      });
     }
-    jwt.verify(
-      accessToken,
-      process.env.TOKEN_SECRET,
-      async (error, decoded) => {
-        if (error) {
-          if (error.message == "jwt expired") {
-            res.status(401).json({
-              message: "token expired ,refresh and generate new token",
-              error: error.message,
-            });
-          }
-        } else {
-          const { user_id } = decoded;
 
-          const user = await userSchema.findById(user_id);
+    // ✅ Use async/await instead of callback for better error handling
+    try {
+      const decoded = jwt.verify(accessToken, process.env.TOKEN_SECRET);
+      const { user_id } = decoded;
 
-          if (!user) {
-            return res.status(404).json({
-              success: false,
-              message: "User not found",
-            });
-          } else {
-            req.userId = user_id;
-            next();
-          }
-        }
+      // Check if user exists
+      const user = await userSchema.findById(user_id);
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
       }
-    );
+
+      // Attach user ID to request
+      req.userId = user_id;
+      
+      // Continue to next middleware/controller
+      next();
+
+    } catch (jwtError) {
+      // Handle JWT-specific errors
+      if (jwtError.name === "TokenExpiredError") {
+        return res.status(401).json({
+          success: false,
+          message: "Token expired, please refresh and generate new token",
+        });
+      }
+
+      if (jwtError.name === "JsonWebTokenError") {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid token",
+        });
+      }
+
+      throw jwtError; // Re-throw if it's not a JWT error
+    }
+
   } catch (error) {
-    console.error(error);
+    console.error("Auth middleware error:", error);
     return res.status(500).json({
       success: false,
-      message: "Could not Access",
+      message: "Authentication failed",
       error: error.message,
     });
   }

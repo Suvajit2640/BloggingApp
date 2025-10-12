@@ -1,6 +1,6 @@
 import express from "express";
 import { decodeToken } from "../middleware/decodetoken.js";
-import { createNote, deleteNote, fileUpload, getAllNote, getNote, getUsersOffset, searchNote, sortNotes, updateNote, upload } from "../controllers/noteController.js";
+import { createNote, deleteNote,  getAllNote, getNote, getUsersOffset, searchNote, sortNotes, updateNote} from "../controllers/noteController.js";
 import { isLoggedIn } from "../middleware/isloggedin.js";
 import { notesvalidation } from "../validators/dataValidation.js";
 import { validate } from "../middleware/validate.js";

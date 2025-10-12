@@ -6,13 +6,20 @@ import path from "path";
 config();
 
 const sendemail = async (email, emailToken) => {
+  console.log("=== EMAIL DEBUG ===");
+  console.log("EMAIL_ID:", process.env.EMAIL_ID);
+  console.log("PASS exists:", !!process.env.PASS);
+  console.log("Sending to:", email);
+  console.log("Token:", emailToken);
+  
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
       user: process.env.EMAIL_ID,
-      pass: process.env.pass,
+      pass: process.env.PASS,  // ✅ uppercase PASS
     },
   });
+  
   transporter.use(
     "compile",
     hbs({
@@ -23,6 +30,7 @@ const sendemail = async (email, emailToken) => {
       viewPath: path.resolve("src/views/layouts"),
     })
   );
+  
   const mailData = {
     from: process.env.EMAIL_ID,
     template: "index",
@@ -34,13 +42,16 @@ const sendemail = async (email, emailToken) => {
     },
   };
 
-  transporter.sendMail(mailData, (error) => {
-    if (error) {
-      return console.log(error);
-    } else {
-      console.log("Email Sent succesfully");
-    }
-  });
+  try {
+    console.log("Attempting to send email...");
+    const info = await transporter.sendMail(mailData);
+    console.log("✅ Email sent successfully:", info.messageId);
+    return info;
+  } catch (error) {
+    console.error("❌ Email sending failed:", error.message);
+    console.error("Full error:", error);
+    throw error;
+  }
 };
 
 export default sendemail;

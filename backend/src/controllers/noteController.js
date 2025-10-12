@@ -1,24 +1,23 @@
 import noteSchema from "../models/noteSchema.js";
-import path from "path";
-// import multer from "multer";
-import userSchema from "../models/userSchema.js";
+import dbconnect from "../config/dbConnection.js";
 
-
-//  creating note
+// Creating note
 export const createNote = async (req, res) => {
   try {
+    await dbconnect();
+
     const userId = req.userId;
     const { title, content } = req.body;
 
     const existing = await noteSchema.findOne({
-      title: req.body.title,
-      userId: req.userId,
+      title: title,
+      userId: userId,
     });
 
     if (existing) {
       return res.status(400).json({
         success: false,
-        message: "This title Already Exists",
+        message: "This title already exists",
       });
     }
 
@@ -30,66 +29,68 @@ export const createNote = async (req, res) => {
       updatedAt: Date.now(),
     });
 
-    if (note) {
-      res.json({
-        status: 200,
-        data: note,
-        message: "data created successfully",
-      });
-    } else {
-      console.log("note cannot be created");
-    }
+    return res.status(201).json({
+      success: true,
+      data: note,
+      message: "Note created successfully",
+    });
+
   } catch (error) {
-    res.json({
-      status: 404,
-      message: "error in data creation",
-      error: error.message,
+    console.error("Create note error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Error in note creation",
     });
   }
 };
 
-// list /getting all notes
+// Get all notes for a user
 export const getNote = async (req, res) => {
   try {
+    await dbconnect();
+
     const userId = req.userId;
-    const note = await noteSchema.find({ userId: userId });
-    if (note) {
-      res.json({
-        status: 200,
-        data: note,
-        message: "data fetched successfully",
-      });
-    }
+    const notes = await noteSchema.find({ userId: userId });
+
+    return res.status(200).json({
+      success: true,
+      data: notes,
+      count: notes.length,
+      message: "Notes fetched successfully",
+    });
+
   } catch (error) {
-    console.log(error);
-    res.json({
-      status: 404,
-      message: "data fetching failed",
+    console.error("Get notes error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Data fetching failed",
     });
   }
 };
 
-// updateNote
+// Update note
 export const updateNote = async (req, res) => {
   try {
+    await dbconnect();
+
     const _id = req.params.id;
     const { title, content } = req.body;
 
     const existing = await noteSchema.findOne({
       title: title,
       userId: req.userId,
-      _id: { $ne: _id }, // Exclude the note being updated
+      _id: { $ne: _id },
     });
 
     if (existing) {
       return res.status(400).json({
         success: false,
-        message: "This title Already Exists",
+        message: "This title already exists",
       });
     }
 
     const updated_result = await noteSchema.findByIdAndUpdate(
-      { _id },
+      _id,
       {
         title: title,
         content: content,
@@ -97,156 +98,187 @@ export const updateNote = async (req, res) => {
       },
       { new: true }
     );
-    if (updated_result) {
-      res.json({
-        status: 200,
-        success: true,
-        data: updated_result,
-        message: "data updated successfully",
-      });
-    } else {
-      res.json({
-        status: 404,
-        message: "data not found",
+
+    if (!updated_result) {
+      return res.status(404).json({
+        success: false,
+        message: "Note not found",
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      data: updated_result,
+      message: "Note updated successfully",
+    });
+
   } catch (error) {
-    console.log(error);
-    res.json({
-      status: 404,
-      message: "data updation failed",
+    console.error("Update note error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Note update failed",
     });
   }
 };
 
-// deleteNote
+// Delete note
 export const deleteNote = async (req, res) => {
   try {
+    await dbconnect();
+
     const id = req.params.id;
     const note = await noteSchema.findByIdAndDelete(id);
-    if (note) {
-      res.json({
-        status: 200,
-        message: "data deleted successfully",
-        data: note,
-      });
-    } else {
-      res.json({
-        status: 404,
-        message: "data not found",
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Note not found",
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "Note deleted successfully",
+      data: note,
+    });
+
   } catch (error) {
-    res.json({
-      status: 404,
-      message: "data deletion failed",
-      error: error.message,
+    console.error("Delete note error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Note deletion failed",
     });
   }
 };
 
-// get all Note
+// Get all notes with pagination, sorting, and search
 export const getAllNote = async (req, res) => {
   try {
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
-    const sortCriteria = {
-      [req.query.sortField]: req.query.sortOrder === "asc" ? 1 : -1,
-    };
+    await dbconnect();
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const sortField = req.query.sortField || 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+    const searchTitle = req.body.title || '';
+
+    const sortCriteria = { [sortField]: sortOrder };
     const offset = (page - 1) * limit;
 
+    const query = {
+      userId: req.userId,
+      title: { $regex: searchTitle, $options: "i" },
+    };
+
     const data = await noteSchema
-      .find({
-        userId: req.userId,
-        title: { $regex: req.body.title, $options: "i" },
-      })
+      .find(query)
       .skip(offset)
       .limit(limit)
       .sort(sortCriteria)
       .exec();
 
-    res.json({
-      status: 200,
-      data: data,
-      total: await noteSchema.find({ userId: req.userId }).countDocuments(),
-    });
-  } catch (error) {
+    const total = await noteSchema.countDocuments(query);
 
-    res.json({
-      status: 500,
-      message: "data fetching failed",
-      error: error.message,
+    return res.status(200).json({
+      success: true,
+      data: data,
+      pagination: {
+        page: page,
+        limit: limit,
+        total: total,
+        pages: Math.ceil(total / limit),
+      },
+      message: "Notes fetched successfully",
+    });
+
+  } catch (error) {
+    console.error("Get all notes error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Data fetching failed",
     });
   }
 };
 
-// filter/search
+// Search notes
 export const searchNote = async (req, res) => {
   try {
-    const note = await noteSchema.find({
+    await dbconnect();
+
+    const searchTitle = req.body.title || '';
+    
+    const notes = await noteSchema.find({
       userId: req.userId,
-      title: { $regex: req.body.title, $options: "i" },
+      title: { $regex: searchTitle, $options: "i" },
     });
 
-    if (note.length !== 0) {
-      res.json({
-        status: 200,
-        message: "data fetched successfully",
-        data: note,
-      });
-    } else {
-      res.json({
-        status: 404,
-        message: "data not found",
+    if (notes.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No notes found",
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "Notes found",
+      data: notes,
+      count: notes.length,
+    });
+
   } catch (error) {
-    res.json({
-      status: 404,
-      message: "data searching failed",
-      error: error.message,
+    console.error("Search notes error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Search failed",
     });
   }
 };
 
-// sorting
+// Sort notes
 export const sortNotes = async (req, res) => {
   try {
-    const sortCriteria = {
-      [req.query.sortField]: req.query.sortOrder === "asc" ? 1 : -1,
-    };
+    await dbconnect();
+
+    const sortField = req.query.sortField || 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+    
+    const sortCriteria = { [sortField]: sortOrder };
+    
     const sortedDocuments = await noteSchema
       .find({ userId: req.userId })
       .sort(sortCriteria);
 
-    if (sortedDocuments) {
-      res.json({
-        status: 200,
-        message: "data sorted successfully",
-        data: sortedDocuments,
-      });
-    } else {
-      res.json({
-        status: 404,
-        message: "data not found",
+    if (sortedDocuments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No notes found",
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "Notes sorted successfully",
+      data: sortedDocuments,
+      count: sortedDocuments.length,
+    });
+
   } catch (error) {
-    res.json({
-      status: 404,
-      message: "data sorting failed",
-      error: error.message,
+    console.error("Sort notes error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Sorting failed",
     });
   }
 };
 
-//  pagination
+// Pagination
 export const getUsersOffset = async (req, res) => {
   try {
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
+    await dbconnect();
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
     const data = await noteSchema
@@ -255,72 +287,25 @@ export const getUsersOffset = async (req, res) => {
       .limit(limit)
       .exec();
 
-    res.json({
-      status: 200,
+    const total = await noteSchema.countDocuments({ userId: req.userId });
+
+    return res.status(200).json({
+      success: true,
       data: data,
-      total: await noteSchema.find({ userId: req.userId }).countDocuments(), // Total number of documents
+      pagination: {
+        page: page,
+        limit: limit,
+        total: total,
+        pages: Math.ceil(total / limit),
+      },
+      message: "Notes fetched successfully",
     });
+
   } catch (error) {
-    res.json({
-      status: 404,
-      message: "pagination problem",
-      error: error.message,
+    console.error("Pagination error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Pagination failed",
     });
   }
 };
-
-// file upload
-// const storage = multer.diskStorage({
-//   destination: "./uploads",
-//   filename: function (req, file, cb) {
-//     cb(
-//       null,
-//       file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-//     );
-//   },
-// });
-
-// file filter
-// const fileFilter = (req, file, cb) => {
-//   const filetypes = /jpeg|jpg|png/;
-//   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-//   const mimetype = filetypes.test(file.mimetype);
-
-//   if (extname && mimetype) {
-//     return cb(null, true);
-//   } else {
-//     cb(new Error('Error: File upload only supports the following filetypes - ' + filetypes));
-//   }
-// };
-
-// export const upload = multer(); 
-// export const fileUpload = async (req, res) => {
-//   try {
-//     const userId = req.userId;
-//     const user = await userSchema.findById(userId)
-//     if (!req.file) {
-//       return res.status(400).send("No file uploaded.");
-//     }
-//     user.file = "http://localhost:8000/" + req.file.path;
-//     await user.save();
-//     return res.status(200).json({
-//       success: true,
-//       message: `File uploaded : ${req.file.filename}`,
-//       file: user.file
-//     });
-
-//   } catch (error) {
-//     console.log(error)
-//     res.json({
-//       status: 404,
-//       message: "error in uploading file",
-//       error: error.message,
-//     });
-//   }
-// };
-// const storage = undefined;
-// export const upload = multer({
-//   storage: storage, 
-//   limits: { fileSize: 1000000 }, 
-//   fileFilter: fileFilter, 
-// });
