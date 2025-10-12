@@ -1,6 +1,6 @@
 import noteSchema from "../models/noteSchema.js";
 import path from "path";
-import multer from "multer";
+// import multer from "multer";
 import userSchema from "../models/userSchema.js";
 
 
@@ -293,6 +293,7 @@ export const getUsersOffset = async (req, res) => {
 //   }
 // };
 
+// export const upload = multer(); 
 // export const fileUpload = async (req, res) => {
 //   try {
 //     const userId = req.userId;

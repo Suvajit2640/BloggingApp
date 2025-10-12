@@ -122,7 +122,7 @@ export const loginUser = async (req, res) => {
           token: accessToken,
           refreshToken: refreshToken,
           success: true,
-          file: nowUser.file,
+          // file: nowUser.file,
           message: "user loggedin successfully.",
         });
       } else {
