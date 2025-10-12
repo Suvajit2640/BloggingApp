@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { FaEye } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
 
 const validateRegister = z.object({
   userName: z
@@ -36,22 +36,6 @@ export const Register = () => {
     resolver: zodResolver(validateRegister),
   });
 
-  const onSubmit = async (data) => {
-    try {
-      const response = await axios.post(`http://localhost:8000/register`, data);
-
-      if (response.data.status === 201) {
-        localStorage.setItem("username", data.userName);
-        notify("success");
-      } else {
-        notify("user exists");
-      }
-    } catch (error) {
-      console.log(error);
-      notify("fail");
-    }
-  };
-
   const notify = (value) => {
     if (value === "success") {
       toast.success(
@@ -64,92 +48,136 @@ export const Register = () => {
       toast.error("User already exists", { autoClose: 2000 });
     }
   };
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(`http://localhost:8000/register`, data);
+
+      if (response.data.status === 201) {
+        localStorage.setItem("username", data.userName);
+        notify("success");
+      } else {
+        notify("user exists");
+      }
+    } catch (error) {
+      console.error(error.response || error);
+      if (error.response && error.response.status === 400) {
+        notify("user exists");
+      } else {
+        notify("fail");
+      }
+    }
+  };
 
   return (
-    <>
-      <div className="h-[90vh] items-center flex flex-col bg-cyan-200 justify-center overflow-hidden">
-        <div className="bg-cyan-50 p-5 rounded-lg flex flex-col m-10 w-[27vw] h-[90vh]">
-          <h1 className="text-3xl text-center font-bold mb-3">Sign Up</h1>
-          <form
-            action="#"
-            className="flex flex-col items-center gap-3"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <div className="flex gap-2 flex-col w-full">
-              <label htmlFor="name" className="text-lg font-bold">
-                Name:
-              </label>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                id="username"
-                name="username"
-                className="p-2 border-2 rounded"
-                {...register("userName")}
-              />
-                {errors.userName ? (
-                  <span className="text-red-500 text-xs">{errors.userName.message}</span>
-                ) : (
-                  <span className="text-red-500 text-xs invisible">""</span>
-                )}
-            </div>
 
-            <div className="flex gap-2 flex-col w-full">
-              <label htmlFor="email" className="text-lg font-bold">
-                Email:
-              </label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                id="useremail"
-                className="p-2 border-2 rounded"
-                {...register("email")}
-              />
-                {errors.email ? (
-                  <span className="text-red-500 text-xs">{errors.email.message}</span>
-                ) : (
-                  <span className="text-red-500 text-xs invisible">""</span>
-                )}
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
+      <div
+        className="
+          bg-white 
+          p-8 sm:p-10 
+          rounded-xl 
+          shadow-2xl 
+          w-full 
+          max-w-md 
+          transform 
+          transition-all 
+          hover:shadow-3xl
+          space-y-6
+        "
+      >
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold text-indigo-700">
+            Create Your Account
+          </h1>
+          <p className="text-gray-500 mt-2">
+            Start taking better notes today.
+          </p>
+        </div>
 
-            <div className="flex gap-2 flex-col w-full relative">
-              <label htmlFor="password" className="text-lg font-bold">
-                Password:
-              </label>
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-1">
+            <label htmlFor="username" className="text-sm font-medium text-gray-700">
+              Username
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your unique name"
+              id="username"
+              className={`p-3 border ${errors.userName ? 'border-red-500' : 'border-gray-300 focus:border-indigo-500'} w-full rounded-lg transition-colors focus:ring-2 focus:ring-indigo-200 focus:outline-none`}
+              {...register("userName")}
+            />
+            {errors.userName && (
+              <p className="text-red-500 text-xs mt-1 transition-all">
+                {errors.userName.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="useremail" className="text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="name@example.com"
+              id="useremail"
+              className={`p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-indigo-500'} w-full rounded-lg transition-colors focus:ring-2 focus:ring-indigo-200 focus:outline-none`}
+              {...register("email")}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1 transition-all">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="userpassword" className="text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Enter your password"
+                placeholder="Must be 8+ chars, 1 number, 1 special char"
                 id="userpassword"
-                className="p-2 border-2 rounded w-full"
+                className={`p-3 border ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-indigo-500'} w-full rounded-lg transition-colors focus:ring-2 focus:ring-indigo-200 focus:outline-none`}
                 {...register("password")}
-                autoComplete="on"
+                autoComplete="new-password"
               />
-              <div
-                className="absolute right-3 top-12 transform cursor-pointer"
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors p-1"
                 onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <FaEye /> : <FaRegEyeSlash />}
-              </div>
-              {errors.password ? (
-                  <span className="text-red-500 text-xs transition-all ease-in-out 3s">
-                    {errors.password.message}
-                  </span>
-                ) : (
-                  <span className="text-red-500 text-xs invisible">""</span>
-                )}
+                {showPassword ? <FaEye size={20} /> : <FaRegEyeSlash size={20} />}
+              </button>
             </div>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1 transition-all">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
 
-            <button
-              type="submit"
-              className="text-md border-black border-2 p-1 px-3 bg-black text-white rounded transition ease-in-out delay-150 hover:scale-105 hover:bg-slate-800 duration-500"
-            >
-              Register
-            </button>
-          </form>
-        </div>
+          <button
+            type="submit"
+            className="w-full mt-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-300"
+          >
+            Register Now
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-gray-600 pt-2">
+          Already have an account?{" "}
+          <Link
+            to="/Login"
+            className="text-indigo-600 font-semibold hover:text-indigo-800 transition-colors"
+          >
+            Log in here
+          </Link>
+        </p>
       </div>
-    </>
+    </div>
   );
 };
