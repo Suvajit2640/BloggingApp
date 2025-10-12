@@ -18,6 +18,15 @@ const generateToken = (user_id, expire_time) => {
 export const registerUser = async (req, res) => {
   try {
     const { userName, email, password } = req.body;
+    const existing_user = await user.findOne({ email });
+
+    if (existing_user) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists ,login to continue",
+        data: "existing user found with the provided email",
+      });
+    }
 
     const saltRounds = 10;
 
@@ -113,7 +122,7 @@ export const loginUser = async (req, res) => {
           token: accessToken,
           refreshToken: refreshToken,
           success: true,
-          file:nowUser.file,
+          file: nowUser.file,
           message: "user loggedin successfully.",
         });
       } else {

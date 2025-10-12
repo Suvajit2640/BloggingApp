@@ -26,7 +26,7 @@ const sendemail = async (email, emailToken) => {
   const mailData = {
     from: process.env.EMAIL_ID,
     template: "index",
-    to: "suvajit@itobuz.com",
+    to: email,
     subject: "Email Verification",
     text: `Verify your email`,
     context: {
