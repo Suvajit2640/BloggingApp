@@ -281,45 +281,45 @@ export const getUsersOffset = async (req, res) => {
 // });
 
 // file filter
-const fileFilter = (req, file, cb) => {
-  const filetypes = /jpeg|jpg|png/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
+// const fileFilter = (req, file, cb) => {
+//   const filetypes = /jpeg|jpg|png/;
+//   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+//   const mimetype = filetypes.test(file.mimetype);
 
-  if (extname && mimetype) {
-    return cb(null, true);
-  } else {
-    cb(new Error('Error: File upload only supports the following filetypes - ' + filetypes));
-  }
-};
+//   if (extname && mimetype) {
+//     return cb(null, true);
+//   } else {
+//     cb(new Error('Error: File upload only supports the following filetypes - ' + filetypes));
+//   }
+// };
 
-export const fileUpload = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const user = await userSchema.findById(userId)
-    if (!req.file) {
-      return res.status(400).send("No file uploaded.");
-    }
-    user.file = "http://localhost:8000/" + req.file.path;
-    await user.save();
-    return res.status(200).json({
-      success: true,
-      message: `File uploaded : ${req.file.filename}`,
-      file: user.file
-    });
+// export const fileUpload = async (req, res) => {
+//   try {
+//     const userId = req.userId;
+//     const user = await userSchema.findById(userId)
+//     if (!req.file) {
+//       return res.status(400).send("No file uploaded.");
+//     }
+//     user.file = "http://localhost:8000/" + req.file.path;
+//     await user.save();
+//     return res.status(200).json({
+//       success: true,
+//       message: `File uploaded : ${req.file.filename}`,
+//       file: user.file
+//     });
 
-  } catch (error) {
-    console.log(error)
-    res.json({
-      status: 404,
-      message: "error in uploading file",
-      error: error.message,
-    });
-  }
-};
-const storage = undefined;
-export const upload = multer({
-  storage: storage, 
-  limits: { fileSize: 1000000 }, 
-  fileFilter: fileFilter, 
-});
+//   } catch (error) {
+//     console.log(error)
+//     res.json({
+//       status: 404,
+//       message: "error in uploading file",
+//       error: error.message,
+//     });
+//   }
+// };
+// const storage = undefined;
+// export const upload = multer({
+//   storage: storage, 
+//   limits: { fileSize: 1000000 }, 
+//   fileFilter: fileFilter, 
+// });
