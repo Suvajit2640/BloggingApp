@@ -1,45 +1,98 @@
+// ============================================
+// BACKEND: authMiddleware.js (UPDATED)
+// ============================================
 import jwt from "jsonwebtoken";
 import userSchema from "../models/userSchema.js";
 
 export const verifyToken = async (req, res) => {
-  let token = req.headers["authorization"];
-  
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized", message: "No token provided" });
-  }
-  
-  token = token.replace("Bearer", "").trim();
-
-  jwt.verify(token, process.env.TOKEN_SECRET, async (error, decoded) => {
-    if (error) {
-      console.error("Token verification error:", error.message);
+  try {
+    let token = req.headers["authorization"] || req.query.token || req.params.token;
+    
+    if (!token) {
       return res.status(401).json({ 
+        success: false,
         error: "Unauthorized", 
-        message: "Email verification failed, possibly the link is invalid or expired" 
-      });
-    } 
-
-    try {
-
-      const updatedUser = await userSchema.findOneAndUpdate(
-        { _id: decoded.user_id },
-        { $set: { verified: true, token: null } },
-        { new: true }
-      );
-
-      if (!updatedUser) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      return res.status(200).json({ message: "Email verified successfully" });
-    } catch (updateError) {
-      console.error("User update error:", updateError.message);
-      return res.status(500).json({ 
-        error: "Internal server error", 
-        message: "Failed to update user verification" 
+        message: "No token provided" 
       });
     }
-  });
+    
+    // Remove Bearer prefix if present
+    token = token.replace("Bearer", "").trim();
+
+    // Verify the JWT token
+    jwt.verify(token, process.env.TOKEN_SECRET, async (error, decoded) => {
+      if (error) {
+        console.error("Token verification error:", error.message);
+        return res.status(401).json({ 
+          success: false,
+          error: "Unauthorized", 
+          message: error.name === "TokenExpiredError" 
+            ? "Verification link has expired. Please request a new one." 
+            : "Invalid verification link." 
+        });
+      } 
+
+      try {
+        // Check if user exists
+        const user = await userSchema.findById(decoded.user_id);
+        
+        if (!user) {
+          return res.status(404).json({ 
+            success: false,
+            error: "User not found",
+            message: "User associated with this token does not exist"
+          });
+        }
+
+        // Check if already verified
+        if (user.verified) {
+          return res.status(200).json({ 
+            success: true,
+            message: "Email already verified. You can log in now.",
+            alreadyVerified: true
+          });
+        }
+
+        // Update user verification status
+        const updatedUser = await userSchema.findOneAndUpdate(
+          { _id: decoded.user_id },
+          { $set: { verified: true, token: null } },
+          { new: true }
+        );
+
+        if (!updatedUser) {
+          return res.status(500).json({ 
+            success: false,
+            error: "Update failed",
+            message: "Failed to verify email. Please try again."
+          });
+        }
+
+        return res.status(200).json({ 
+          success: true,
+          message: "Email verified successfully! You can now log in.",
+          user: {
+            email: updatedUser.email,
+            username: updatedUser.username
+          }
+        });
+      } catch (updateError) {
+        console.error("User update error:", updateError.message);
+        return res.status(500).json({ 
+          success: false,
+          error: "Internal server error", 
+          message: "Failed to update user verification" 
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Unexpected error in verifyToken:", error.message);
+    return res.status(500).json({ 
+      success: false,
+      error: "Internal server error", 
+      message: "An unexpected error occurred during verification" 
+    });
+  }
 };
 
 export const verifyRefreshToken = async (req, res, next) => {
@@ -55,13 +108,18 @@ export const verifyRefreshToken = async (req, res, next) => {
 
     if (!refreshToken) {
       console.log("Refresh token not available");
-      return res.status(401).json({ error: "Unauthorized", message: "No refresh token provided" });
+      return res.status(401).json({ 
+        success: false,
+        error: "Unauthorized", 
+        message: "No refresh token provided" 
+      });
     }
 
     jwt.verify(refreshToken, process.env.TOKEN_SECRET, async (error, decoded) => {
       if (error) {
         console.error("Refresh token verification error:", error.message);
         return res.status(401).json({
+          success: false,
           error: "Unauthorized",
           message: "Refresh token expired or invalid",
         });
@@ -73,6 +131,7 @@ export const verifyRefreshToken = async (req, res, next) => {
 
         if (!user) {
           return res.status(404).json({
+            success: false,
             error: "User not found",
             message: "User associated with token does not exist"
           });
@@ -83,6 +142,7 @@ export const verifyRefreshToken = async (req, res, next) => {
       } catch (dbError) {
         console.error("Database error in verifyRefreshToken:", dbError.message);
         return res.status(500).json({ 
+          success: false,
           error: "Internal server error", 
           message: "Failed to fetch user" 
         });
@@ -91,6 +151,7 @@ export const verifyRefreshToken = async (req, res, next) => {
   } catch (error) {
     console.error("Unexpected error in verifyRefreshToken:", error.message);
     return res.status(500).json({ 
+      success: false,
       error: "Internal server error", 
       message: error.message || "An unexpected error occurred" 
     });

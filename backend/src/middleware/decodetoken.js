@@ -4,7 +4,7 @@ import dbconnect from "../config/dbConnection.js";
 
 export const decodeToken = async (req, res, next) => {
   try {
-    // ✅ Connect to DB first
+
     await dbconnect();
 
     const authHeader = req.headers.authorization;
@@ -16,7 +16,7 @@ export const decodeToken = async (req, res, next) => {
       });
     }
 
-    // Extract token
+
     let accessToken;
     if (authHeader.includes("Bearer")) {
       accessToken = authHeader.split(" ")[1];
@@ -31,7 +31,7 @@ export const decodeToken = async (req, res, next) => {
       });
     }
 
-    // ✅ Use async/await instead of callback for better error handling
+
     try {
       const decoded = jwt.verify(accessToken, process.env.TOKEN_SECRET);
       const { user_id } = decoded;
@@ -68,7 +68,7 @@ export const decodeToken = async (req, res, next) => {
         });
       }
 
-      throw jwtError; // Re-throw if it's not a JWT error
+      throw jwtError;
     }
 
   } catch (error) {

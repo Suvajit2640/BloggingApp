@@ -9,7 +9,6 @@ import dbconnect from "../config/dbConnection.js";
 config();
 
 const generateToken = (user_id, expire_time) => {
-  // Clean the expire_time value
   const cleanExpireTime = String(expire_time).replace(/['"]/g, '').trim();
 
   const generatedToken = jwt.sign(
@@ -84,7 +83,6 @@ export const loginUser = async (req, res) => {
 
     const { email, password } = req.body;
 
-    // ✅ Explicitly select the password field
     const existing_user = await user.findOne({ email }).select('+password');
 
     if (!existing_user) {
@@ -94,7 +92,6 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ✅ Check if password exists
     if (!existing_user.password) {
       console.error("Password field is missing for user:", email);
       return res.status(500).json({
