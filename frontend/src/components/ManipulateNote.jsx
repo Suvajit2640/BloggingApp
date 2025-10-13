@@ -18,6 +18,8 @@ const validateNote = z.object({
   content: z.string().min(1, { message: "Content cannot be null" }),
 });
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const ManipulateNote = ({
   type,
   setrender,
@@ -56,37 +58,40 @@ export const ManipulateNote = ({
     }
   };
 
-  // handling submit button (UNCHANGED)
+  // handling submit button (MODIFIED TO MATCH LOGIN STYLE)
   const onSubmit = async (data) => {
     try {
       data.title = data.title.trim();
       data.content = data.content.trim();
 
-      let method, Route;
+      let method, endpoint;
       if (type.header === "Create") {
         method = axios.post;
-        Route = `http://localhost:8000/note/${type.Route}`;
+        endpoint = `${API_URL}/note/${type.Route}`;
       } else {
         method = axios.put;
-        Route = `http://localhost:8000/note/update/${type.data_id}`;
+        endpoint = `${API_URL}/note/update/${type.data_id}`;
       }
 
-      const response = await method(Route, data, {
+      const response = await method(endpoint, data, {
         headers: {
           Authorization: `Bearer ${access}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (response.data.status === 200) {
+      if (response.data.success) {
         notify("success");
         setrender(!render);
         // Important: Close the modal on successful submission
         onClose();
         type.NoteTitle = data.title;
         type.NoteContent = data.content;
+      } else {
+        notify("fail");
       }
     } catch (error) {
+      // console.error(error.response.data)
       if (error.response && error.response.status === 400) {
         notify("exists");
       } else {

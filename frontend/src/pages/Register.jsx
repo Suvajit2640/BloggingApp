@@ -26,6 +26,9 @@ const validateRegister = z.object({
     }),
 });
 
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -48,11 +51,13 @@ export const Register = () => {
       toast.error("User already exists", { autoClose: 2000 });
     }
   };
+
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`http://localhost:8000/register`, data);
+      
+      const response = await axios.post(`${API_URL}/register`, data);
 
-      if (response.data.status === 201) {
+      if (response.data.success) {
         localStorage.setItem("username", data.userName);
         notify("success");
       } else {
@@ -69,7 +74,6 @@ export const Register = () => {
   };
 
   return (
-
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
       <div
         className="

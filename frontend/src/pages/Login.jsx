@@ -24,9 +24,11 @@ const ValidateLogin = z.object({
     }),
 });
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const Login = () => {
   const navigate = useNavigate();
-  const { setIsLogin } = useContext(UserContext); // Removed isLogin as it wasn't used
+  const { setIsLogin } = useContext(UserContext); 
   const [showPassword, setShowPassword] = useState(false); 
   
   const {
@@ -37,7 +39,6 @@ export const Login = () => {
     resolver: zodResolver(ValidateLogin),
   });
 
-  // --- Toast Notification Logic (UNCHANGED) ---
   const notify = (value) => {
     if (value === "success") {
       toast.success("Login successful!", { autoClose: 3000 });
@@ -48,16 +49,16 @@ export const Login = () => {
     }
   };
 
-  // --- Submission Logic (UNCHANGED) ---
+ 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`http://localhost:8000/login`, data, {
+      const response = await axios.post(`${API_URL}/login`, data, {
         headers: {
           "Content-Type": "application/json",
         },
       });
       const { token, refreshToken, username, file } = await response.data;
-      
+      // console.log("response",response)
       localStorage.setItem("accessToken", token);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("username", username);
@@ -67,16 +68,17 @@ export const Login = () => {
         Authorization: "Bearer " + token,
       };
 
-      if (response.status === 201) {
+      if (response.data.success) {
         notify("success");
-        setIsLogin(true); // Must set this before navigation to reflect context immediately
+        setIsLogin(true); 
         navigate("/Notes", { replace: true });
       } else {
         notify("fail");
       }
       
     } catch (error) {
-      if(error.response && error.response.data.data === "user is not verified") {
+      // console.error(error.response.data)
+      if(error.response && error.response.data.message === "Please verify your email before logging in") {
         notify("verify error");
       } else {
         notify("fail");
@@ -84,9 +86,9 @@ export const Login = () => {
     }
   };
 
-  // --- Rendered Component with New UI/UX ---
+
   return (
-    // Responsive container uses min-h-screen for full view height and a light, modern background
+  
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
       <div
         className="
