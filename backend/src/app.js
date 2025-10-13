@@ -9,7 +9,6 @@ config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-// Updated CORS configuration
 const corsOptions = {
   origin: [
     'https://blogging-app-f7.vercel.app',
@@ -17,11 +16,16 @@ const corsOptions = {
     'http://localhost:3000'
   ],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Handle preflight OPTIONS requests
+app.options('*', cors(corsOptions));
 
 app.use("/", route);
 app.use("/note", noteRoute);
