@@ -12,59 +12,47 @@ export const VerifyPage = () => {
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
 
-  useEffect(() => {
-    const verifyEmail = async () => {
-      if (!token) {
+useEffect(() => {
+  const verifyEmail = async () => {
+    console.log("=== Frontend VerifyPage ===");
+    console.log("Token from URL:", token);
+
+    if (!token) {
+      console.log("❌ No token provided in URL");
+      setStatus("error");
+      setMessage("No verification token provided.");
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_URL}/verify`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Verification response:", response.data);
+
+      if (response.data.success) {
+        console.log("✅ Verification success");
+        setStatus("success");
+        setMessage(response.data.message || "Email verified successfully!");
+      } else {
+        console.log("❌ Verification failed with backend message:", response.data.message);
         setStatus("error");
-        setMessage("No verification token provided.");
-        return;
+        setMessage(response.data.message || "Verification failed.");
       }
-
-      try {
-        console.log("Verifying token:", token);
-        
-        const response = await axios.get(`${API_URL}/verify`, {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        console.log("Verification response:", response.data);
-
-        if (response.data.success) {
-          setStatus("success");
-          setMessage(response.data.message || "Email verified successfully!");
-          
-          // Check if already verified
-          if (response.data.alreadyVerified) {
-            setMessage("Your email is already verified. Redirecting to login...");
-          }
-        } else {
-          setStatus("error");
-          setMessage(response.data.message || "Verification failed.");
-        }
-      } catch (error) {
-        console.error("Verification error:", error);
-        setStatus("error");
-        
-        if (error.response) {
-          // Server responded with error
-          setMessage(
-            error.response.data?.message || 
-            "Verification failed. The link may be invalid or expired."
-          );
-        } else if (error.request) {
-          // Request made but no response
-          setMessage("Cannot reach the server. Please check your connection.");
-        } else {
-          // Something else went wrong
-          setMessage("An unexpected error occurred. Please try again.");
-        }
+    } catch (error) {
+      console.error("❌ Verification request error:", error);
+      setStatus("error");
+      if (error.response) {
+        setMessage(error.response.data?.message || "Server verification failed");
+      } else {
+        setMessage("Network error or unexpected issue");
       }
-    };
+    }
+  };
 
-    verifyEmail();
-  }, [token]);
+  verifyEmail();
+}, [token]);
 
   // Countdown and redirect on success
   useEffect(() => {
