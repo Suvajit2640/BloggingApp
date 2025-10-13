@@ -5,8 +5,7 @@ import { CheckCircle, XCircle, Loader2, Mail, ArrowRight, AlertCircle } from "lu
 
 // ✅ Fallback to production backend if env var not set
 const API_URL = import.meta.env.VITE_API_URL || 
-                import.meta.env.VITE_BACKEND_URL || 
-                "https://your-production-backend.com"; // ⚠️ REPLACE THIS!
+                "https://notes-app-backend-gamma-orcin.vercel.app"; 
 
 export const VerifyPage = () => {
   const { token } = useParams();
