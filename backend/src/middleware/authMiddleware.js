@@ -7,15 +7,10 @@ import userSchema from "../models/userSchema.js";
 export const verifyToken = async (req, res) => {
   try {
     let token = req.headers["authorization"] || req.query.token || req.params.token;
-    
-    console.log("=== VERIFY TOKEN DEBUG ===");
-    console.log("Headers:", req.headers);
-    console.log("Authorization header:", req.headers["authorization"]);
-    console.log("Token extracted:", token);
-    console.log("Request origin:", req.headers.origin);
+    console.log("token",token);
+
     
     if (!token) {
-      console.log("❌ No token provided");
       return res.status(401).json({ 
         success: false,
         error: "Unauthorized", 
@@ -25,13 +20,75 @@ export const verifyToken = async (req, res) => {
     
     // Remove Bearer prefix if present
     token = token.replace("Bearer", "").trim();
-    console.log("Token after cleanup:", token.substring(0, 30) + "...");
 
-    // Rest of your existing code...
+    // Verify the JWT token
     jwt.verify(token, process.env.TOKEN_SECRET, async (error, decoded) => {
-      // ... your existing verification logic
+      if (error) {
+        console.error("Token verification error:", error.message);
+        return res.status(401).json({ 
+          success: false,
+          error: "Unauthorized", 
+          message: error.name === "TokenExpiredError" 
+            ? "Verification link has expired. Please request a new one." 
+            : "Invalid verification link." 
+        });
+      } 
+      
+      
+      try {
+        console.log("decoded",decoded);
+        // Check if user exists
+        const user = await userSchema.findById(decoded.user_id);
+        console.log("user",user);
+        if (!user) {
+          return res.status(404).json({ 
+            success: false,
+            error: "User not found",
+            message: "User associated with this token does not exist"
+          });
+        }
+
+        // Check if already verified
+        if (user.verified) {
+          return res.status(200).json({ 
+            success: true,
+            message: "Email already verified. You can log in now.",
+            alreadyVerified: true
+          });
+        }
+
+        // Update user verification status
+        const updatedUser = await userSchema.findOneAndUpdate(
+          { _id: decoded.user_id },
+          { $set: { verified: true, token: null } },
+          { new: true }
+        );
+
+        if (!updatedUser) {
+          return res.status(500).json({ 
+            success: false,
+            error: "Update failed",
+            message: "Failed to verify email. Please try again."
+          });
+        }
+
+        return res.status(200).json({ 
+          success: true,
+          message: "Email verified successfully! You can now log in.",
+          user: {
+            email: updatedUser.email,
+            userName: updatedUser.userName
+          }
+        });
+      } catch (updateError) {
+        console.error("User update error:", updateError.message);
+        return res.status(500).json({ 
+          success: false,
+          error: "Internal server error", 
+          message: "Failed to update user verification" 
+        });
+      }
     });
-    
   } catch (error) {
     console.error("Unexpected error in verifyToken:", error.message);
     return res.status(500).json({ 
