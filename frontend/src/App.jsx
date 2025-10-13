@@ -15,7 +15,7 @@ function App() {
   const [isLogin, setIsLogin] = useState();
   return (
     <>
-       
+
       <UserContext.Provider value={{ isLogin, setIsLogin }}>
 
         <Navbar />
@@ -27,11 +27,11 @@ function App() {
           <Route path="/verify/:token" element={<VerifyPage />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Notes" element={<NotesPage />} />
-          <Route path="/createNote" element={<ManipulateNote/>} />
+          <Route path="/createNote" element={<ManipulateNote />} />
           <Route path="/NoteCard" element={NoteCard}></Route>
         </Routes>
       </UserContext.Provider>
-      
+
     </>
   );
 }

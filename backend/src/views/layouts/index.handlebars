@@ -1,16 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Token</title>
+    <title>Verify Your Email</title>
 </head>
+<body style="margin: 0; padding: 0; background-color: #f6f6f6;">
+    <center style="width: 100%; table-layout: fixed;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+            <tr>
+                <td align="center" style="padding: 40px 0;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                        
+                        <tr>
+                            <td align="center" style="padding: 20px 0 10px 0;">
+                                <h1 style="font-family: Arial, sans-serif; color: #1a73e8; font-size: 28px; margin: 0;">NoteWorthy</h1>
+                            </td>
+                        </tr>
 
-<body>
-    <p>Hello, verify your email address by clicking on this</p>
-    <br>
-    <a href="http://localhost:5173/verify/{{token}}">Click here to verify</a>
+                        <tr>
+                            <td style="padding: 20px 40px 30px 40px; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #333333;">
+                                <h2 style="color: #1a73e8; font-size: 22px; margin-top: 0; margin-bottom: 20px;">
+                                    Please Verify Your Email Address
+                                </h2>
+                                <p style="margin-bottom: 25px;">
+                                    Welcome! To complete your registration and gain full access to your account, please click the verification button below.
+                                </p>
+
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" style="padding: 20px 0;">
+                                            <a href="http://localhost:5173/verify/{{token}}" 
+                                               style="display: inline-block; padding: 12px 25px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; border: 1px solid #007bff;">
+                                                Activate Account
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <p style="margin-top: 25px;">
+                                    If you cannot click the button, copy and paste the following URL into your web browser:
+                                </p>
+                                <p style="word-break: break-all; font-size: 13px; color: #999999;">
+                                    <a href="http://localhost:5173/verify/{{token}}" style="color: #007bff; text-decoration: none;">
+                                        http://localhost:5173/verify/{{token}}
+                                    </a>
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td bgcolor="#f4f4f4" align="center" style="padding: 15px 40px; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; color: #888888; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                                <p style="margin: 0;">
+                                    You are receiving this email because you recently signed up for an account.
+                                    <br>
+                                    If this was a mistake, please ignore this email.
+                                </p>
+                            </td>
+                        </tr>
+
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </center>
 </body>
-
 </html>

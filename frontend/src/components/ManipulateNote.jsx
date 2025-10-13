@@ -7,16 +7,18 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
-import closeIcon from "../assets/closeIcon.jpg";
+// import closeIcon from "../assets/closeIcon.jpg"; // Replaced with a modern icon
+import { X, Save } from "lucide-react"; // Imported modern icons
 
-// validating the schema
+// validating the schema (UNCHANGED)
 const validateNote = z.object({
   title: z
     .string()
     .min(3, { message: "Title must be at least 3 characters long !!" }),
-  content: z.string() .min(1, { message: "Content cannot be null" }),
-  
+  content: z.string().min(1, { message: "Content cannot be null" }),
 });
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const ManipulateNote = ({
   type,
@@ -38,7 +40,7 @@ export const ManipulateNote = ({
     resolver: zodResolver(validateNote),
   });
 
-  // generate toast messages
+  // generate toast messages (UNCHANGED)
   const notify = (value) => {
     const toggle = type.header === "Create" ? "Created" : "Updated";
     const errorMessage = type.header === "Create" ? "Creation" : "Updation";
@@ -56,35 +58,40 @@ export const ManipulateNote = ({
     }
   };
 
-  // handling submit button
+  // handling submit button (MODIFIED TO MATCH LOGIN STYLE)
   const onSubmit = async (data) => {
     try {
       data.title = data.title.trim();
       data.content = data.content.trim();
 
-      let method, Route;
+      let method, endpoint;
       if (type.header === "Create") {
         method = axios.post;
-        Route = `http://localhost:8000/note/${type.Route}`;
+        endpoint = `${API_URL}/note/${type.Route}`;
       } else {
         method = axios.put;
-        Route = `http://localhost:8000/note/update/${type.data_id}`;
+        endpoint = `${API_URL}/note/update/${type.data_id}`;
       }
 
-      const response = await method(Route, data, {
+      const response = await method(endpoint, data, {
         headers: {
           Authorization: `Bearer ${access}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (response.data.status === 200) {
+      if (response.data.success) {
         notify("success");
         setrender(!render);
+        // Important: Close the modal on successful submission
+        onClose();
         type.NoteTitle = data.title;
         type.NoteContent = data.content;
+      } else {
+        notify("fail");
       }
     } catch (error) {
+      // console.error(error.response.data)
       if (error.response && error.response.status === 400) {
         notify("exists");
       } else {
@@ -93,18 +100,26 @@ export const ManipulateNote = ({
     }
   };
 
-  // defining the modal
+  // defining the modal (IMPROVED UI)
   const Modal = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-blue-500 bg-opacity-50 z-10">
-        <div className="">{children}</div>
+      <div
+        className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50 p-4"
+        onClick={onClose} // Close when clicking the backdrop
+      >
+        <div
+          className="bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-2xl transform transition-all duration-300"
+          onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the modal content
+        >
+          {children}
+        </div>
       </div>
     );
   };
 
-  // monitoring changes
+  // monitoring changes (UNCHANGED)
   useEffect(() => {
     if (!access) {
       navigate("/login");
@@ -122,75 +137,94 @@ export const ManipulateNote = ({
     }
   }, [access, navigate, render, reset, type]);
 
-  // returning the modal
+  // returning the modal (IMPROVED UI)
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <>
-        <div className="note-container relative">
-          <button
-            className="absolute top-5 right-7 text-xl text-black hover:text-gray-700"
-            onClick={onClose}
-          >
-            <img src={closeIcon} alt="" className="w-8" />
-          </button>
-          <div className="items-center flex flex-col justify-center m-0 p-0">
-            <div className="flex flex-col gap-7 bg-[#0077b6] p-2 rounded-lg h-[90vh] w-[45vw] items-center justify-center">
-              <form
-                action="#"
-                className="flex flex-col items-center gap-3"
-                onSubmit={handleSubmit(onSubmit)}
-              >
-                <div className="flex flex-col gap-10 justify-center items-center p-3">
-                  <h1 className="font-bold text-3xl text-white">
-                    {type.header} Post
-                  </h1>
-                  <div className="flex gap-1 flex-col">
-                    <input
-                      className="placeholder:text-gray-500 placeholder:italic placeholder:text-2xll min-w-[40vw] min-h-[10vh] placeholder:font-semibold p-2 text-2x"
-                      type="text"
-                      placeholder="New note title here..."
-                      autoComplete="off"
-                      aria-label="Post Title"
-                      autoFocus="on"
-                      {...register("title")}
-                    />
-                    {errors.title ? (
-                      <span className="text-yellow-400 text-lg font-semibold">
-                        {errors.title.message}
-                      </span>
-                    ) : (
-                      <p className="text-yellow-400 text-lg font-semibold invisible">
-                        " "
-                      </p>
-                    )}
-                    <textarea
-                      aria-label="Post Content"
-                      placeholder="Write your content here..."
-                      className="min-h-[35vh] p-2 placeholder:text-2xl text-2xl"
-                      {...register("content")}
-                    />
-                    {errors.content ? (
-                      <span className="text-yellow-400 text-lg font-semibold">
-                        {errors.content.message}
-                      </span>
-                    ) : (
-                      <p className="text-yellow-400 text-lg font-semibold invisible">
-                        " "
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  className="text-xl border-black border-2 p-2 px-5 bg-blue-100 rounded transition ease-in-out delay-150 hover:scale-105 hover:bg-cyan-500 duration-500 hover:text-white"
-                >
-                  Save
-                </button>
-              </form>
+      <div className="relative p-6 sm:p-8">
+        {/* Close Button */}
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors"
+          onClick={onClose}
+          aria-label="Close Note Editor"
+        >
+          <X size={24} />
+        </button>
+
+        {/* Form Content */}
+        <form
+          className="flex flex-col gap-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          {/* Header */}
+          <h1 className="font-extrabold text-3xl text-gray-800 border-b pb-3 mb-2">
+            {type.header} Note
+          </h1>
+
+          {/* Inputs Container */}
+          <div className="flex flex-col gap-4">
+
+            {/* Title Input */}
+            <div>
+              <input
+                className={`w-full text-2xl font-semibold p-3 border-b-2 
+                            placeholder:text-gray-400 focus:outline-none 
+                            ${errors.title ? 'border-red-500' : 'border-gray-200 focus:border-indigo-500'} 
+                            transition-colors`}
+                type="text"
+                placeholder="Title: New note title here..."
+                autoComplete="off"
+                aria-label="Note Title"
+                // autoFocus is applied here for better UX
+                autoFocus
+                {...register("title")}
+              />
+              {errors.title ? (
+                <span className="text-red-500 text-sm font-medium mt-1 block">
+                  {errors.title.message}
+                </span>
+              ) : (
+                <p className="text-red-500 text-sm font-medium mt-1 invisible h-5">
+                  &nbsp;
+                </p>
+              )}
+            </div>
+
+            {/* Content Textarea */}
+            <div>
+              <textarea
+                aria-label="Note Content"
+                placeholder="Write your note content here..."
+                className={`w-full p-3 min-h-[30vh] text-base border-2 rounded-lg 
+                            placeholder:text-gray-500 focus:outline-none 
+                            ${errors.content ? 'border-red-500' : 'border-gray-200 focus:border-indigo-500'} 
+                            transition-colors resize-none`}
+                {...register("content")}
+              />
+              {errors.content ? (
+                <span className="text-red-500 text-sm font-medium mt-1 block">
+                  {errors.content.message}
+                </span>
+              ) : (
+                <p className="text-red-500 text-sm font-medium mt-1 invisible h-5">
+                  &nbsp;
+                </p>
+              )}
             </div>
           </div>
-        </div>
-      </>
+
+          {/* Save Button */}
+          <button
+            type="submit"
+            className="flex items-center justify-center gap-2 mt-2 py-3 px-5 
+                       bg-indigo-600 text-white font-semibold text-lg rounded-lg 
+                       shadow-md hover:bg-indigo-700 
+                       transition ease-in-out duration-300 transform hover:scale-[1.01]"
+          >
+            <Save size={20} />
+            {type.header === "Create" ? "Create Note" : "Update Note"}
+          </button>
+        </form>
+      </div>
     </Modal>
   );
 };

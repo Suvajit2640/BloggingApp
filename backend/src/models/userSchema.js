@@ -25,10 +25,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     select:false
   },
-  file: {
-    type: String,
-    default:""
-  },
+  // file: {
+  //   type: String,
+  //   default:""
+  // },
 });
 
 export default mongoose.model("user", userSchema);

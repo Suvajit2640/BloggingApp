@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react"; 
 import { SortNote } from "./SortNote";
 import { useDebounce } from "./debounce";
 
@@ -18,7 +20,6 @@ export const SearchNote = ({
   const navigate = useNavigate();
 
   const title = watch("title");
-
   const debouncedTitle = useDebounce(title, 300); 
 
   useEffect(() => {
@@ -35,7 +36,19 @@ export const SearchNote = ({
   }, [access, navigate]);
 
   return (
-    <form action="#" className="flex items-center gap-5">
+    <form action="#" className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+
+      <div className="relative w-full sm:w-80">
+        <input
+          type="text"
+          name="title"
+          placeholder="Search notes by title..."
+          className="p-3 pl-10 border border-gray-300 rounded-lg bg-white placeholder-gray-500 w-full focus:ring-indigo-500 focus:border-indigo-500 transition-shadow shadow-sm"
+          {...register("title")}
+        />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+      </div>
+      
       <SortNote
         sortField={sortField}
         setSortField={setSortField}
@@ -44,17 +57,6 @@ export const SearchNote = ({
         render={render}
         setrender={setrender}
       />
-      <div className="flex items-center gap-10 relative w-full cursor-pointer">
-        <div className="flex">
-          <input
-            type="text"
-            name="title"
-            placeholder="Search Notes...."
-            className="p-3 border-2 rounded-lg text-white bg-gray-700 focus:ring-blue-500 focus:border-blue-500 border-gray-600 placeholder-gray-400 w-[40vw]"
-            {...register("title")}
-          />
-        </div>
-      </div>
     </form>
   );
 };
