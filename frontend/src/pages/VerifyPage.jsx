@@ -25,7 +25,9 @@ useEffect(() => {
     }
 
     try {
-      const response = await axios.get(`${API_URL}/verify?token=${token}`);
+      const response = await axios.get(`${API_URL}/verify`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       console.log("Verification response:", response.data);
 

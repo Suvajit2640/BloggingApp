@@ -31,6 +31,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
+  console.log("outside submit");
   const {
     register,
     handleSubmit,
@@ -56,7 +57,7 @@ export const Register = () => {
     try {
       
       const response = await axios.post(`${API_URL}/register`, data);
-
+      console.log("register page");
       if (response.data.success) {
         localStorage.setItem("username", data.userName);
         notify("success");
