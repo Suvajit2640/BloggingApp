@@ -57,7 +57,7 @@ export const Register = () => {
     try {
       
       const response = await axios.post(`${API_URL}/register`, data);
-      console.log("register page");
+      // console.log("register page");
       if (response.data.success) {
         localStorage.setItem("username", data.userName);
         notify("success");
