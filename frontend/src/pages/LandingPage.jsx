@@ -2,7 +2,7 @@ import React from "react";
 import home from "../assets/home.jpeg";
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-8 lg:p-12">
+    <div className=" bg-gray-50 p-4 sm:p-1 ">
       <div className="max-w-7xl w-full mx-auto py-8 md:py-16 lg:py-20">
 
         {/* Main Content Grid: Uses flex on mobile, switches to a grid layout on medium screens */}
