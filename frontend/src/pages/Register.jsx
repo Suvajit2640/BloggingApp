@@ -75,7 +75,7 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
+    <div className=" flex items-center justify-center bg-gray-100 p-4 sm:p-6">
       <div
         className="
           bg-white 

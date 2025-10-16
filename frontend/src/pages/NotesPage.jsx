@@ -42,7 +42,7 @@ export const NotesPage = () => {
   }, [search, sortField, sortOrder]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className=" bg-gray-50 flex flex-col">
       {/* Top Navigation Bar - Sticky */}
       <div className="py-6 px-4 sm:px-6 lg:px-8 bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
