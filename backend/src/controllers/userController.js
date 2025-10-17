@@ -23,9 +23,9 @@ const generateToken = (user_id, expire_time) => {
 export const registerUser = async (req, res) => {
   try {
     await dbconnect();
-    console.log("EXPIRE_TIME:", process.env.EXPIRE_TIME);
-    console.log("EXPIRE_TIME type:", typeof process.env.EXPIRE_TIME);
-    console.log("EXPIRE_TIME length:", process.env.EXPIRE_TIME?.length);
+    // console.log("EXPIRE_TIME:", process.env.EXPIRE_TIME);
+    // console.log("EXPIRE_TIME type:", typeof process.env.EXPIRE_TIME);
+    // console.log("EXPIRE_TIME length:", process.env.EXPIRE_TIME?.length);
     const { userName, email, password } = req.body;
     const existing_user = await user.findOne({ email });
 

@@ -45,14 +45,14 @@ const sendemail = async (email, emailToken) => {
   };
 
   try {
-    // console.log("Attempting to send email...");
-    // console.log("Verification link:", verificationLink);
+    console.log("Attempting to send email...");
+    console.log("Verification link:", verificationLink);
     const info = await transporter.sendMail(mailData);
-    // console.log("✅ Email sent successfully:", info.messageId);
+    console.log("✅ Email sent successfully:", info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    // console.error("❌ Email sending failed:", error.message);
-    // console.error("Full error:", error);
+    console.error("❌ Email sending failed:", error.message);
+    console.error("Full error:", error);
     throw new Error(`Email sending failed: ${error.message}`);
   }
 };

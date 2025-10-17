@@ -1,6 +1,3 @@
-// ============================================
-// BACKEND: authMiddleware.js (UPDATED)
-// ============================================
 import jwt from "jsonwebtoken";
 import userSchema from "../models/userSchema.js";
 
@@ -18,7 +15,7 @@ export const verifyToken = async (req, res) => {
       });
     }
     
-    // Remove Bearer prefix if present
+   
     token = token.replace("Bearer", "").trim();
 
     // Verify the JWT token
