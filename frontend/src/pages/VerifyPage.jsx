@@ -9,6 +9,12 @@ const API_URL = import.meta.env.VITE_API_URL ||
 
 export const VerifyPage = () => {
   const { token } = useParams();
+  // TEMP FIX: Immediately return the error state if the token is "test"
+  console.log("this line reached")
+if (token === 'test') {
+        // Return a basic, non-styled element immediately
+        return <div>TEST PAGE RENDERED! Token: {token}</div>; 
+    }
   const navigate = useNavigate();
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
