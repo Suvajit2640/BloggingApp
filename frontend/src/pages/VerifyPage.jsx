@@ -1,7 +1,7 @@
-// import axios from "axios";
-// import { useParams, Link, useNavigate } from "react-router-dom";
-// import { useState, useEffect } from "react";
-// import { CheckCircle, XCircle, Loader2, Mail, ArrowRight, AlertCircle } from "lucide-react";
+import axios from "axios";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { CheckCircle, XCircle, Loader2, Mail, ArrowRight, AlertCircle } from "lucide-react";
 import React from "react";
 
 export const VerifyPage = () => {
