@@ -7,7 +7,8 @@ import React from "react";
 export const VerifyPage = () => {
   const { token } = useParams();
   // TEMP FIX: Immediately return the error state if the token is "test"
-  console.log("this line reached")
+  console.log("this line reached");
+  const API_URL = import.meta.env.VITE_API_URL;
   if (token === 'test') {
     // Return a basic, non-styled element immediately
     return <div>TEST PAGE RENDERED! Token: {token}</div>;
@@ -24,7 +25,7 @@ export const VerifyPage = () => {
       // Log for debugging
       console.group("🔍 Email Verification Process");
       console.log("Environment:", import.meta.env.MODE);
-      console.log("API URL:", API_URL);
+      // console.log("API URL:", API_URL);
       console.log("Token:", token?.substring(0, 30) + "...");
       console.log("Full URL:", window.location.href);
 
@@ -303,11 +304,6 @@ export const VerifyPage = () => {
             support@notesapp.com
           </a>
         </p>
-        {import.meta.env.DEV && (
-          <p className="text-xs text-gray-400 mt-2 font-mono">
-            API: {API_URL}
-          </p>
-        )}
       </div>
     </div>
   
