@@ -22,8 +22,8 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/LandingPage" element={<LandingPage />} />
           <Route path="/Register" element={<Register />} />
-          <Route path="/verify/test" element={<VerifyPage isTestRoute={true} />} />
-          <Route path="/verify/:token" element={<VerifyPage isTestRoute={false} />} />
+          <Route path="/verify/test" element={<VerifyPage  />} />
+          <Route path="/verify/:token" element={<VerifyPage  />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/Notes" element={<NotesPage />} />
           <Route path="/createNote" element={<ManipulateNote />} />
