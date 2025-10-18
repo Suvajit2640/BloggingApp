@@ -1,8 +1,10 @@
 import React from "react";
 import home from "../assets/home.jpeg";
+import { useNavigate, Link } from "react-router-dom";
 export default function LandingPage() {
+    const navigate = useNavigate();
   return (
-    <div className=" bg-gray-50 p-4 sm:p-1 ">
+    <div className="  p-4 sm:p-1 ">
       <div className="max-w-7xl w-full mx-auto py-8 md:py-16 lg:py-20">
 
         {/* Main Content Grid: Uses flex on mobile, switches to a grid layout on medium screens */}
@@ -19,8 +21,8 @@ export default function LandingPage() {
               Capture your ideas, organize your thoughts, and never lose a brilliant insight again. NoteWorthy is designed for clarity and efficiency.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <a
-                href="/Register" 
+              <Link
+                to="/Register"
                 className="px-8 py-3 text-base sm:text-lg font-semibold rounded-lg shadow-lg 
                            bg-indigo-600 text-white 
                            hover:bg-indigo-700 
@@ -28,9 +30,9 @@ export default function LandingPage() {
                            focus:outline-none focus:ring-4 focus:ring-indigo-300"
               >
                 Get Started — It's Free
-              </a>
-              <a
-                href="/Login" 
+              </Link>
+              <Link
+                to="/Login"
                 className="px-8 py-3 text-base sm:text-lg font-semibold rounded-lg shadow-md 
                            bg-white text-indigo-600 border border-indigo-600
                            hover:bg-indigo-50 
@@ -38,7 +40,7 @@ export default function LandingPage() {
                            focus:outline-none focus:ring-4 focus:ring-indigo-300"
               >
                 Already a User? Login
-              </a>
+              </Link>
             </div>
           </div>
 

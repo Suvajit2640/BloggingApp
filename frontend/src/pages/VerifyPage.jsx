@@ -6,13 +6,8 @@ import React from "react";
 
 export const VerifyPage = () => {
   const { token } = useParams();
-  // TEMP FIX: Immediately return the error state if the token is "test"
-  console.log("this line reached");
   const API_URL = import.meta.env.VITE_API_URL;
-  if (token === 'test') {
-    // Return a basic, non-styled element immediately
-    return <div>TEST PAGE RENDERED! Token: {token}</div>;
-  }
+
   const navigate = useNavigate();
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
@@ -23,9 +18,8 @@ export const VerifyPage = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       // Log for debugging
-      console.group("🔍 Email Verification Process");
+      console.group("Email Verification Process");
       console.log("Environment:", import.meta.env.MODE);
-      // console.log("API URL:", API_URL);
       console.log("Token:", token?.substring(0, 30) + "...");
       console.log("Full URL:", window.location.href);
 
@@ -37,7 +31,6 @@ export const VerifyPage = () => {
         return;
       }
 
-      // Validate JWT format (3 parts separated by dots)
       const tokenParts = token.split('.');
       if (tokenParts.length !== 3) {
         console.error("❌ Invalid JWT format:", tokenParts.length, "parts");
@@ -56,7 +49,7 @@ export const VerifyPage = () => {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
           },
-          timeout: 15000, // 15 second timeout
+          timeout: 15000,
         });
 
         console.log("✅ Response received:", response.data);
@@ -93,7 +86,6 @@ export const VerifyPage = () => {
           userMessage = "Request timeout. The server is taking too long to respond.";
           details.reason = "timeout";
         } else if (error.response) {
-          // Server responded with error status
           console.error("Response status:", error.response.status);
           console.error("Response data:", error.response.data);
 
@@ -119,7 +111,6 @@ export const VerifyPage = () => {
               userMessage = errorMsg || `Server error (${error.response.status})`;
           }
         } else if (error.request) {
-          // Request made but no response received
           console.error("No response from server");
           console.error("This is likely a CORS or network issue");
 
@@ -149,7 +140,6 @@ export const VerifyPage = () => {
     verifyEmail();
   }, [token]);
 
-  // Auto-redirect countdown on success
  
   useEffect(() => {
     if (status === "success") {
@@ -235,7 +225,6 @@ export const VerifyPage = () => {
             </h2>
             <p className="text-gray-600 text-lg mb-6">{message}</p>
 
-            {/* Common Issues */}
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-left">
               <p className="text-red-800 font-semibold mb-2 text-sm">Common Reasons:</p>
               <ul className="text-red-700 text-sm space-y-1 list-disc list-inside">
@@ -246,7 +235,7 @@ export const VerifyPage = () => {
               </ul>
             </div>
 
-            {/* Debug Info Toggle */}
+
             {errorDetails && (
               <button
                 onClick={() => setDebugMode(!debugMode)}
@@ -257,16 +246,15 @@ export const VerifyPage = () => {
               </button>
             )}
 
-            {/* Debug Details */}
+
             {debugMode && errorDetails && (
-              <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6 text-left">
+              <div className=" border border-gray-300 rounded-lg p-4 mb-6 text-left">
                 <p className="font-mono text-xs text-gray-700 whitespace-pre-wrap">
                   {JSON.stringify(errorDetails, null, 2)}
                 </p>
               </div>
             )}
 
-            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 to="/Register"

@@ -5,12 +5,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate, Link } from "react-router-dom"; // Import Link for navigation to Register
+import { useNavigate, Link } from "react-router-dom"; 
 import { UserContext } from "../context/UserContext";
 import { FaEye } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
 
-// --- ZOD Validation Schema (UNCHANGED) ---
 const ValidateLogin = z.object({
   email: z.string().email({ message: "Invalid email format" }),
   password: z
@@ -89,7 +88,7 @@ export const Login = () => {
 
   return (
   
-    <div className=" flex items-center justify-center bg-gray-100 p-4 sm:p-6">
+    <div className=" flex min-h-[90vh] items-center justify-center  p-4 sm:p-6">
       <div
         className="
           bg-white 
@@ -114,7 +113,7 @@ export const Login = () => {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          {/* Email Field */}
+
           <div className="space-y-1">
             <label htmlFor="useremail" className="text-sm font-medium text-gray-700">
               Email
@@ -133,7 +132,6 @@ export const Login = () => {
             )}
           </div>
 
-          {/* Password Field */}
           <div className="space-y-1">
             <label htmlFor="userpassword" className="text-sm font-medium text-gray-700">
               Password
@@ -163,15 +161,6 @@ export const Login = () => {
             )}
           </div>
           
-          {/* Forgot Password Link (Common UX practice) */}
-          <div className="text-right text-sm">
-             {/* You can add a proper route for this later */}
-            <a href="#" className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
-              Forgot Password?
-            </a>
-          </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full mt-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-300"
@@ -180,7 +169,6 @@ export const Login = () => {
           </button>
         </form>
 
-        {/* Register Link */}
         <p className="text-center text-sm text-gray-600 pt-2">
           Don't have an account yet?{" "}
           <Link

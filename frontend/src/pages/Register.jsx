@@ -75,7 +75,7 @@ export const Register = () => {
   };
 
   return (
-    <div className=" flex items-center justify-center bg-gray-100 p-4 sm:p-6">
+    <div className=" flex items-center justify-center  p-4 sm:p-6">
       <div
         className="
           bg-white 
@@ -106,7 +106,7 @@ export const Register = () => {
             </label>
             <input
               type="text"
-              placeholder="Enter your unique name"
+              placeholder="Enter your name"
               id="username"
               className={`p-3 border ${errors.userName ? 'border-red-500' : 'border-gray-300 focus:border-indigo-500'} w-full rounded-lg transition-colors focus:ring-2 focus:ring-indigo-200 focus:outline-none`}
               {...register("userName")}
@@ -143,7 +143,7 @@ export const Register = () => {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Must be 8+ chars, 1 number, 1 special char"
+                placeholder="Enter Password"
                 id="userpassword"
                 className={`p-3 border ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-indigo-500'} w-full rounded-lg transition-colors focus:ring-2 focus:ring-indigo-200 focus:outline-none`}
                 {...register("password")}

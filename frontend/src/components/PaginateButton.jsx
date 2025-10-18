@@ -40,8 +40,8 @@ export const PaginateButton = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-1 sm:py-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
           {/* Page Info - Mobile Top, Desktop Left */}
           <div className="text-sm text-gray-600 font-medium order-1 sm:order-none">
             Showing <span className="text-indigo-600 font-semibold">{Math.min((page - 1) * itemsPerPage + 1, total)}</span>
@@ -58,7 +58,7 @@ export const PaginateButton = ({
               <button
                 onClick={() => handlePageChange(1)}
                 disabled={page === 1}
-                className={`hidden sm:flex items-center justify-center w-9 h-9 rounded-lg font-medium text-sm transition-all duration-200
+                className={`hidden sm:flex items-center justify-center w-6 h-6 md:w-9 md:h-9 rounded-lg font-medium text-sm transition-all duration-200
                   ${page === 1
                     ? "bg-gray-50 text-gray-300 cursor-not-allowed"
                     : "bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:scale-95"
@@ -73,7 +73,7 @@ export const PaginateButton = ({
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
+              className={`flex items-center  px-1 sm:px-3 py-1 sm:py-2 rounded-lg font-medium text-sm transition-all duration-200
                 ${page === 1
                   ? "bg-gray-50 text-gray-300 cursor-not-allowed"
                   : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 shadow-sm hover:shadow-md"
@@ -91,7 +91,7 @@ export const PaginateButton = ({
                 <>
                   <button
                     onClick={() => handlePageChange(1)}
-                    className="hidden sm:flex items-center justify-center w-9 h-9 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
+                    className="hidden sm:flex items-center justify-center w-6 h-6 md:w-9 md:h-9  rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
                   >
                     1
                   </button>
@@ -107,7 +107,7 @@ export const PaginateButton = ({
                   <button
                     key={index}
                     onClick={() => handlePageChange(pageNum)}
-                    className={`flex items-center justify-center w-9 h-9 rounded-lg font-medium text-sm transition-all duration-200
+                    className={`flex items-center justify-center w-6 h-6 md:w-9 md:h-9  rounded-lg font-medium text-sm transition-all duration-200
                       ${isCurrent
                         ? "bg-indigo-600 text-white shadow-md scale-110"
                         : "bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:scale-95"
@@ -127,7 +127,7 @@ export const PaginateButton = ({
                   )}
                   <button
                     onClick={() => handlePageChange(totalPages)}
-                    className="hidden sm:flex items-center justify-center w-9 h-9 rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
+                    className="hidden sm:flex items-center justify-center w-6 h-6 md:w-9 md:h-9  rounded-lg font-medium text-sm bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
                   >
                     {totalPages}
                   </button>
@@ -139,7 +139,7 @@ export const PaginateButton = ({
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === totalPages}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
+              className={`flex items-center px-1 sm:px-3 py-1 sm:py-2 r rounded-lg font-medium text-sm transition-all duration-200
                 ${page === totalPages
                   ? "bg-gray-50 text-gray-300 cursor-not-allowed"
                   : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 shadow-sm hover:shadow-md"
@@ -155,7 +155,7 @@ export const PaginateButton = ({
               <button
                 onClick={() => handlePageChange(totalPages)}
                 disabled={page === totalPages}
-                className={`hidden sm:flex items-center justify-center w-9 h-9 rounded-lg font-medium text-sm transition-all duration-200
+                className={`hidden sm:flex items-center justify-center  w-6 h-6 md:w-9 md:h-9  rounded-lg font-medium text-sm transition-all duration-200
                   ${page === totalPages
                     ? "bg-gray-50 text-gray-300 cursor-not-allowed"
                     : "bg-gray-100 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 active:scale-95"

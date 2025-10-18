@@ -59,9 +59,10 @@ export const Navbar = () => {
   };
 
   const closeMenu = () => setIsMenuOpen(false);
+  // console.log("profile image", profileImage)
   const renderProfileWidget = ({ isMobile = false }) => (
     <div className="relative cursor-pointer" onClick={openProfileModal}>
-      {profileImage ? (
+      {/* {profileImage ? (
         <img
           src={profileImage}
           alt="Profile"
@@ -69,18 +70,22 @@ export const Navbar = () => {
         />
       ) : (
         <LuCircleUserRound
-          
+
           className="text-indigo-500 hover:text-indigo-700 transition-colors w-7 h-7 md:w-10 lg:h-10"
         />
-      )}
+      )} */}
 
-      {!isMobile && (
+      <LuCircleUserRound
+
+        className="text-indigo-500 hover:text-indigo-700 transition-colors w-7 h-7 md:w-10 lg:h-10"
+      />
+      {/* {!isMobile && (
         <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
           <div className="bg-indigo-500 rounded-full p-1">
             <HiOutlinePencilSquare className="w-3 h-3 text-white" />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 
