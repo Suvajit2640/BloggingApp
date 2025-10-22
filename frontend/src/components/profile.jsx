@@ -2,12 +2,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { UploadCloud, X } from "lucide-react";
-import { Upload } from "lucide-react";
+import { UploadCloud, X, Upload, Trash2 } from "lucide-react";
 
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
-
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50 p-4"
@@ -23,16 +21,21 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
-export const ProfileModal = ({ isOpen, onClose, onImageUpload }) => {
+export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
-  let access = localStorage.getItem("accessToken");
+  const access = localStorage.getItem("accessToken");
+  const userId = localStorage.getItem("userId"); 
 
+  
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
       formData.append("file", data.file[0]);
+      formData.append("userId", userId);
+
       const response = await axios.post(
-        `http://localhost:8000/note/fileupload`,
+        `${API_URL}/upload-profile`,
         formData,
         {
           headers: {
@@ -43,31 +46,40 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload }) => {
       );
 
       if (response.data.success) {
-        toast.success("File uploaded successfully!");
-        onImageUpload(response.data.file);
+        toast.success(response.data.message);
+        onImageUpload(response.data.url); 
         reset();
-        onClose();
       }
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        toast.error("File already exists.");
-      } else {
-        toast.error("File upload failed.");
+      console.error(error);
+      toast.error(error.response?.data?.message || "Upload failed!");
+    }
+  };
+
+  // Delete profile picture
+  const handleDelete = async () => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/delete-profile`,
+        { userId },
+        { headers: { Authorization: `Bearer ${access}` } }
+      );
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        onImageUpload(""); 
       }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Delete failed!");
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div
-        className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-sm relative 
-                   border border-gray-100 transform transition-transform"
-      >
-
+      <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-sm relative border border-gray-100">
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors p-1"
           onClick={onClose}
-          aria-label="Close Profile Upload Modal"
         >
           <X size={24} />
         </button>
@@ -78,19 +90,24 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload }) => {
             Update Profile Photo
           </h1>
 
-          <form
-            className="flex flex-col items-center gap-6 w-full"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          {currentImage && (
+            <div className="mb-4">
+              <img
+                src={currentImage}
+                alt="Current Profile"
+                className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+              />
+            </div>
+          )}
+
+          <form className="flex flex-col items-center gap-6 w-full" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col items-start w-full">
-              <label
-                htmlFor="file-upload"
-                className="text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="file-upload" className="text-sm font-medium text-gray-700 mb-1">
                 Choose Image File (JPG, PNG)
               </label>
               <input
                 id="file-upload"
+                type="file"
                 className={`block w-full text-sm text-gray-600 
                             file:mr-4 file:py-2 file:px-4 
                             file:rounded-full file:border-0 
@@ -99,33 +116,31 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload }) => {
                             hover:file:bg-indigo-100
                             border ${errors.file ? 'border-red-500' : 'border-gray-300'} 
                             rounded-lg shadow-sm cursor-pointer`}
-                type="file"
-                aria-label="Upload Profile Pic"
                 {...register("file", { required: "Please select an image file." })}
               />
-
-
-              {errors.file ? (
-                <span className="text-red-500 text-xs mt-2 font-medium">
-                  {errors.file.message}
-                </span>
-              ) : (
-                <span className="text-red-500 text-xs mt-2 invisible h-4"></span>
+              {errors.file && (
+                <span className="text-red-500 text-xs mt-2 font-medium">{errors.file.message}</span>
               )}
             </div>
 
-
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 py-2 px-6 
-                         bg-indigo-600 text-white rounded-lg text-lg font-semibold 
-                         shadow-md hover:bg-indigo-700 hover:scale-[1.03] 
-                         active:scale-95 transition-all duration-300"
+              className="flex items-center justify-center gap-2 py-2 px-6 bg-indigo-600 text-white rounded-lg text-lg font-semibold shadow-md hover:bg-indigo-700 hover:scale-[1.03] active:scale-95 transition-all duration-300"
             >
               <Upload size={20} />
-              Save
+              Upload
             </button>
           </form>
+
+          {currentImage && (
+            <button
+              onClick={handleDelete}
+              className="flex items-center justify-center gap-2 mt-4 py-2 px-6 bg-red-500 text-white rounded-lg text-lg font-semibold shadow-md hover:bg-red-600 hover:scale-[1.03] active:scale-95 transition-all duration-300"
+            >
+              <Trash2 size={20} />
+              Delete
+            </button>
+          )}
         </div>
       </div>
     </Modal>
