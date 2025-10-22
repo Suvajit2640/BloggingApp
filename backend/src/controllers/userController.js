@@ -5,6 +5,7 @@ import sendemail from "../emailVerify/sendEmail.js";
 import { config } from "dotenv";
 import sessionSchema from "../models/sessionSchema.js";
 import dbconnect from "../config/dbConnection.js";
+import { v2 as cloudinary } from "cloudinary";
 
 config();
 
@@ -138,6 +139,7 @@ export const loginUser = async (req, res) => {
       username: existing_user.userName,
       token: accessToken,
       refreshToken: refreshToken,
+      profilePic: existing_user.profilePic || "",
       message: "User logged in successfully",
     });
 
@@ -185,5 +187,50 @@ export const logoutUser = async (req, res) => {
       success: false,
       message: error.message || "Internal server error",
     });
+  }
+};
+// upload profile pic
+export const uploadProfilePic = async (req, res) => {
+  try {
+    await dbconnect();
+
+    const existingUser = await user.findById(req.userId);
+    if (!existingUser) return res.status(404).json({ message: "User not found" });
+
+    existingUser.profilePic = req.file.path; // Cloudinary URL
+    await existingUser.save();
+
+    res.json({ success: true, message: "Profile picture uploaded", url: req.file.path });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// delete profile pic
+export const deleteProfilePic = async (req, res) => {
+  try {
+    await dbconnect();
+
+    const existingUser = await user.findById(req.userId);
+
+    if (!existingUser || !existingUser.profilePic) {
+      return res.status(404).json({ success: false, message: "No profile picture found" });
+    }
+
+    const urlParts = existingUser.profilePic.split("/");
+    const fileNameWithExtension = urlParts[urlParts.length - 1];
+    const publicId = `profile_pics/${fileNameWithExtension.split(".")[0]}`;
+
+    await cloudinary.uploader.destroy(publicId);
+
+    existingUser.profilePic = "";
+    await existingUser.save();
+
+    res.json({ success: true, message: "Profile picture deleted successfully" });
+
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

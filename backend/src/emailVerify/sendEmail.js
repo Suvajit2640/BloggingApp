@@ -30,7 +30,7 @@ const sendemail = async (email, emailToken) => {
   );
   
   // Use your frontend URL
-  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify/${emailToken}`;
+  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/#/verify/${emailToken}`;
   
   const mailData = {
     from: process.env.EMAIL_ID,

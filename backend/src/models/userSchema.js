@@ -18,13 +18,14 @@ const userSchema = new mongoose.Schema({
   verified: {
     type: Boolean,
     default: false,
-    select:true
+    select: true
   },
   password: {
     type: String,
     required: true,
-    select:false
+    select: false
   },
+  profilePic: { type: String, default: "" }
   // file: {
   //   type: String,
   //   default:""
