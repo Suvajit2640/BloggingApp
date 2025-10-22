@@ -25,8 +25,6 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
   const API_URL = import.meta.env.VITE_API_URL;
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const access = localStorage.getItem("accessToken");
-  const userId = localStorage.getItem("userId");
-
 
   const onSubmit = async (data) => {
     try {
@@ -40,17 +38,18 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
       });
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        toast.success(response.data.message || "Profile picture uploaded successfully!");
         onImageUpload(response.data.url);
         reset();
+        onClose(); // Close modal after successful upload
       }
     } catch (error) {
-      console.error(error);
+      console.error("Upload error:", error);
       toast.error(error.response?.data?.message || "Upload failed!");
     }
   };
 
-  // Delete profile picture
+  // ✅ FIX: Delete profile picture with proper error handling
   const handleDelete = async () => {
     try {
       const response = await axios.delete(`${API_URL}/delete-profile`, {
@@ -58,11 +57,28 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
       });
 
       if (response.data.success) {
-        toast.success(response.data.message);
-        onImageUpload("");
+        toast.success(response.data.message || "Profile picture deleted successfully!");
+        // ✅ FIX: Pass null instead of empty string
+        onImageUpload(null);
+        // Also clear from localStorage
+        localStorage.removeItem("profileImage");
+        onClose(); // Close modal after successful deletion
+      } else {
+        toast.error(response.data.message || "Delete failed!");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Delete failed!");
+      console.error("Delete error:", error);
+      // Better error handling
+      if (error.response) {
+        // Server responded with error
+        toast.error(error.response.data?.message || "Failed to delete profile picture!");
+      } else if (error.request) {
+        // Request made but no response
+        toast.error("No response from server. Please check your connection.");
+      } else {
+        // Something else happened
+        toast.error("An error occurred. Please try again.");
+      }
     }
   };
 
@@ -72,6 +88,7 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors p-1"
           onClick={onClose}
+          aria-label="Close modal"
         >
           <X size={24} />
         </button>
@@ -88,6 +105,9 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
                 src={currentImage}
                 alt="Current Profile"
                 className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                onError={(e) => {
+                  e.target.src = ""; // Fallback if image fails to load
+                }}
               />
             </div>
           )}
@@ -100,7 +120,7 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
               <input
                 id="file-upload"
                 type="file"
-                accept=".jpg,.jpeg,.png" // only allow JPG/PNG
+                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                 className={`block w-full text-sm text-gray-600 
               file:mr-4 file:py-2 file:px-4 
               file:rounded-full file:border-0 
@@ -119,7 +139,7 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
 
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 py-2 px-6 bg-indigo-600 text-white rounded-lg text-lg font-semibold shadow-md hover:bg-indigo-700 hover:scale-[1.03] active:scale-95 transition-all duration-300"
+              className="flex items-center justify-center gap-2 py-2 px-6 bg-indigo-600 text-white rounded-lg text-lg font-semibold shadow-md hover:bg-indigo-700 hover:scale-[1.03] active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             >
               <Upload size={20} />
               Upload
@@ -129,7 +149,7 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
           {currentImage && (
             <button
               onClick={handleDelete}
-              className="flex items-center justify-center gap-2 mt-4 py-2 px-6 bg-red-500 text-white rounded-lg text-lg font-semibold shadow-md hover:bg-red-600 hover:scale-[1.03] active:scale-95 transition-all duration-300"
+              className="flex items-center justify-center gap-2 mt-4 py-2 px-6 bg-red-500 text-white rounded-lg text-lg font-semibold shadow-md hover:bg-red-600 hover:scale-[1.03] active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-300"
             >
               <Trash2 size={20} />
               Delete
