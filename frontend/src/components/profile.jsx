@@ -25,46 +25,46 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
   const API_URL = import.meta.env.VITE_API_URL;
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const access = localStorage.getItem("accessToken");
-  const userId = localStorage.getItem("userId"); 
+  const userId = localStorage.getItem("userId");
 
-  
-const onSubmit = async (data) => {
-  try {
-    const formData = new FormData();
-    formData.append("profilePic", data.file[0]);
-    const response = await axios.post(`${API_URL}/upload-profile`, formData, {
-      headers: {
-        Authorization: `Bearer ${access}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
 
-    if (response.data.success) {
-      toast.success(response.data.message);
-      onImageUpload(response.data.url);
-      reset();
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+      formData.append("profilePic", data.file[0]);
+      const response = await axios.post(`${API_URL}/upload-profile`, formData, {
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        onImageUpload(response.data.url);
+        reset();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Upload failed!");
     }
-  } catch (error) {
-    console.error(error);
-    toast.error(error.response?.data?.message || "Upload failed!");
-  }
-};
+  };
 
   // Delete profile picture
-const handleDelete = async () => {
-  try {
-    const response = await axios.delete(`${API_URL}/delete-profile`, {
-      headers: { Authorization: `Bearer ${access}` },
-    });
+  const handleDelete = async () => {
+    try {
+      const response = await axios.delete(`${API_URL}/delete-profile`, {
+        headers: { Authorization: `Bearer ${access}` },
+      });
 
-    if (response.data.success) {
-      toast.success(response.data.message);
-      onImageUpload(""); 
+      if (response.data.success) {
+        toast.success(response.data.message);
+        onImageUpload("");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Delete failed!");
     }
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Delete failed!");
-  }
-};
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -100,16 +100,18 @@ const handleDelete = async () => {
               <input
                 id="file-upload"
                 type="file"
+                accept=".jpg,.jpeg,.png" // only allow JPG/PNG
                 className={`block w-full text-sm text-gray-600 
-                            file:mr-4 file:py-2 file:px-4 
-                            file:rounded-full file:border-0 
-                            file:text-sm file:font-semibold
-                            file:bg-indigo-50 file:text-indigo-700
-                            hover:file:bg-indigo-100
-                            border ${errors.file ? 'border-red-500' : 'border-gray-300'} 
-                            rounded-lg shadow-sm cursor-pointer`}
+              file:mr-4 file:py-2 file:px-4 
+              file:rounded-full file:border-0 
+              file:text-sm file:font-semibold
+              file:bg-indigo-50 file:text-indigo-700
+              hover:file:bg-indigo-100
+              border ${errors.file ? 'border-red-500' : 'border-gray-300'} 
+              rounded-lg shadow-sm cursor-pointer`}
                 {...register("file", { required: "Please select an image file." })}
               />
+
               {errors.file && (
                 <span className="text-red-500 text-xs mt-2 font-medium">{errors.file.message}</span>
               )}

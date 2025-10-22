@@ -21,6 +21,12 @@ export const Navbar = () => {
 
   let access = localStorage.getItem("accessToken");
 
+  useEffect(() => {
+    const storedImage = localStorage.getItem("profileImage");
+    setProfileImage(storedImage || null); 
+  }, []);
+
+
   const logout = () => {
     setIsLogin(false);
     localStorage.removeItem("accessToken");
@@ -61,7 +67,7 @@ export const Navbar = () => {
   };
 
   const closeMenu = () => setIsMenuOpen(false);
-  
+
   const renderProfileWidget = ({ isMobile = false }) => (
     <div className="relative cursor-pointer" onClick={openProfileModal}>
       {profileImage ? (
