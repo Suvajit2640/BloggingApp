@@ -32,7 +32,7 @@ export const Navbar = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("username");
     localStorage.removeItem("refreshToken");
-    localStorage.removeItem("profileImage");
+    // localStorage.removeItem("profileImage");
     setProfileImage("");
     navigate("/LandingPage");
     setShowLogoutModal(false);
