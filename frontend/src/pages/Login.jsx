@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate, Link } from "react-router-dom"; 
+import { useNavigate, Link } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { FaEye } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
@@ -27,9 +27,9 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const Login = () => {
   const navigate = useNavigate();
-  const { setIsLogin } = useContext(UserContext); 
-  const [showPassword, setShowPassword] = useState(false); 
-  
+  const { setIsLogin } = useContext(UserContext);
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -48,7 +48,6 @@ export const Login = () => {
     }
   };
 
- 
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(`${API_URL}/login`, data, {
@@ -56,28 +55,31 @@ export const Login = () => {
           "Content-Type": "application/json",
         },
       });
-      const { token, refreshToken, username, file } = await response.data;
-      // console.log("response",response)
+      
+      // ✅ FIX: Properly destructure profilePic from response
+      const { token, refreshToken, username, profilePic } = response.data;
+      
+      // Store tokens and user info
       localStorage.setItem("accessToken", token);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("username", username);
-      localStorage.setItem("profileImage", file);
+      
+      // ✅ FIX: Store profile image from backend response
+      localStorage.setItem("profileImage", profilePic || "");
 
-      axios.defaults.headers = {
-        Authorization: "Bearer " + token,
-      };
+      // Set default authorization header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       if (response.data.success) {
         notify("success");
-        setIsLogin(true); 
+        setIsLogin(true);
         navigate("/Notes", { replace: true });
       } else {
         notify("fail");
       }
-      
+
     } catch (error) {
-      // console.error(error.response.data)
-      if(error.response && error.response.data.message === "Please verify your email before logging in") {
+      if (error.response && error.response.data.message === "Please verify your email before logging in") {
         notify("verify error");
       } else {
         notify("fail");
@@ -85,9 +87,7 @@ export const Login = () => {
     }
   };
 
-
   return (
-  
     <div className=" flex min-h-[90vh] items-center justify-center  p-4 sm:p-6">
       <div
         className="
@@ -113,7 +113,6 @@ export const Login = () => {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-
           <div className="space-y-1">
             <label htmlFor="useremail" className="text-sm font-medium text-gray-700">
               Email
@@ -160,7 +159,7 @@ export const Login = () => {
               </p>
             )}
           </div>
-          
+
           <button
             type="submit"
             className="w-full mt-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-300"

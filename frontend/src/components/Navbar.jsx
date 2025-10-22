@@ -3,9 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { LuCircleUserRound } from "react-icons/lu";
 import { Menu, X } from 'lucide-react';
+import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { ProfileModal } from "./profile";
 import { LogoutModal } from "./LogoutModal";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -15,47 +18,60 @@ export const Navbar = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  let username = localStorage.getItem("username");
-
+  const username = localStorage.getItem("username");
   const displayUsername = username ? username.split(" ")[0].trim() : "User";
+  const access = localStorage.getItem("accessToken");
 
-  let access = localStorage.getItem("accessToken");
-
+  // ✅ FIX: Single useEffect to handle login state and profile image
   useEffect(() => {
-    const storedImage = localStorage.getItem("profileImage");
-    setProfileImage(storedImage || null); 
-  }, []);
+    if (access) {
+      setIsLogin(true);
+      
+      // Load profile image from localStorage first (for immediate display)
+      const storedImage = localStorage.getItem("profileImage");
+      if (storedImage) {
+        setProfileImage(storedImage);
+      }
 
+      // Then fetch fresh profile data from backend
+      const fetchProfile = async () => {
+        try {
+          const res = await axios.get(`${API_URL}/profile`, {
+            headers: { Authorization: `Bearer ${access}` },
+          });
+          
+          if (res.data.success && res.data.profilePic) {
+            localStorage.setItem("profileImage", res.data.profilePic);
+            setProfileImage(res.data.profilePic);
+          }
+        } catch (err) {
+          console.error("Profile fetch failed:", err);
+        }
+      };
+
+      fetchProfile();
+    } else {
+      setIsLogin(false);
+      setProfileImage(null);
+    }
+  }, [access, setIsLogin]);
 
   const logout = () => {
     setIsLogin(false);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("username");
     localStorage.removeItem("refreshToken");
-    // localStorage.removeItem("profileImage");
-    setProfileImage("");
+    localStorage.removeItem("profileImage");
+    setProfileImage(null);
     navigate("/LandingPage");
     setShowLogoutModal(false);
     setIsMenuOpen(false);
   };
 
-  useEffect(() => {
-    if (access === null) {
-      setIsLogin(false);
-    } else {
-      setIsLogin(true);
-    }
-    const storedImage = localStorage.getItem("profileImage");
-    if (storedImage) {
-      setProfileImage(storedImage);
-    }
-  }, [access, setIsLogin]);
-
   const openProfileModal = () => {
     setIsMenuOpen(false);
     setIsModalOpen(true);
   };
-
 
   const closeProfileModal = () => {
     setIsModalOpen(false);
@@ -74,6 +90,7 @@ export const Navbar = () => {
         <img
           src={profileImage}
           alt="Profile"
+          onError={() => setProfileImage(null)}
           className="w-7 h-7 md:w-10 lg:h-10 rounded-full object-cover ring-2 ring-indigo-400 hover:ring-indigo-600 transition-all"
         />
       ) : (
@@ -81,7 +98,6 @@ export const Navbar = () => {
       )}
     </div>
   );
-
 
   const unauthenticatedLinks = (
     <>
@@ -139,7 +155,6 @@ export const Navbar = () => {
               )}
             </div>
 
-
             <div className="md:hidden flex items-center sm:space-x-3">
               {isLogin && renderProfileWidget({ isMobile: true })}
 
@@ -157,8 +172,9 @@ export const Navbar = () => {
         </div>
 
         <div
-          className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-screen opacity-100 py-2" : "max-h-0 opacity-0"
-            } bg-gray-50 border-t border-gray-100`}
+          className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${
+            isMenuOpen ? "max-h-screen opacity-100 py-2" : "max-h-0 opacity-0"
+          } bg-gray-50 border-t border-gray-100`}
         >
           <div className="px-4 pt-2 pb-3 space-y-3">
             {isLogin ? (
