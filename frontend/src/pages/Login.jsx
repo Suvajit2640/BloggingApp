@@ -161,6 +161,15 @@ const onSubmit = async (data) => {
             )}
           </div>
 
+          <div className="text-right">
+            <Link
+              to="/ForgetPassword"
+              className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors font-medium"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             className="w-full mt-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-300"
