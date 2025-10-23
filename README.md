@@ -77,11 +77,6 @@ A full-stack **secure and feature-rich Notes Application** built using the **MER
 📍 2025 Graduate – Meghnad Saha Institute of Technology
 🔗 [GitHub Profile](https://github.com/Suvajit2640)
 
----
-
-## 🪪 License
-
-This project is licensed under the **MIT License** – feel free to use and modify with attribution.
 
 ---
 
