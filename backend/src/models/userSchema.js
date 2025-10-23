@@ -26,10 +26,7 @@ const userSchema = new mongoose.Schema({
     select: false
   },
   profilePic: { type: String, default: "" }
-  // file: {
-  //   type: String,
-  //   default:""
-  // },
+
 });
 
 export default mongoose.model("user", userSchema);

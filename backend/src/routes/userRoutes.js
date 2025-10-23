@@ -9,7 +9,10 @@ import { upload } from "../config/cloudinaryConfig.js";
 import { uploadProfilePic } from "../controllers/userController.js";
 import { decodeToken } from "../middleware/decodetoken.js";
 import { deleteProfilePic } from "../controllers/userController.js";
-
+import { getProfile } from "../controllers/userController.js";
+import { forgetPassword } from "../controllers/userController.js";
+import { otpCheck } from "../controllers/userController.js";
+import { resetPassword } from "../controllers/userController.js";
 const route = express.Router();
 
 route.get("/verify", verifyToken);
@@ -24,7 +27,10 @@ route.post("/upload-profile", decodeToken, upload.single("profilePic"), async (r
     res.status(400).json({ success: false, message: err.message });
   }
 });
-
-route.delete("/delete-pic",decodeToken, deleteProfilePic);
+route.delete("/delete-profile",decodeToken, deleteProfilePic);
+route.get("/profile", decodeToken, getProfile);
+route.post("/forgetPassword", forgetPassword);
+route.post("/verifyOtp", otpCheck);
+route.post("/resetPassword", resetPassword);
 
 export default route;

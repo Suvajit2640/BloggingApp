@@ -6,6 +6,8 @@ import { config } from "dotenv";
 import sessionSchema from "../models/sessionSchema.js";
 import dbconnect from "../config/dbConnection.js";
 import { v2 as cloudinary } from "cloudinary";
+import otpSchema from "../models/otpSchema.js";
+import sendOtpEmail from "../emailVerify/sendOtpEmail.js";
 
 config();
 
@@ -232,5 +234,213 @@ export const deleteProfilePic = async (req, res) => {
   } catch (error) {
     console.error("Delete error:", error);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Add this to your controller file
+export const getProfile = async (req, res) => {
+  try {
+    await dbconnect();
+
+    const existingUser = await user.findById(req.userId).select('userName email profilePic');
+
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      userName: existingUser.userName,
+      email: existingUser.email,
+      profilePic: existingUser.profilePic || ""
+    });
+
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// forget password
+export const forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const existing_user = await user.findOne({ email: email });
+
+    if (!existing_user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not registered",
+      });
+    }
+
+    const otp = Math.floor(1000 + Math.random() * 9000);
+    const existingOtp = await otpSchema.findOne({ email });
+
+    if (existingOtp) {
+      existingOtp.isVerified = false;
+      existingOtp.otp = otp;
+      existingOtp.createdAt = Date.now();
+      await existingOtp.save();
+    } else {
+      await otpSchema.create({ email, otp });
+    }
+
+    try {
+      await sendOtpEmail(email, otp);
+    } catch (error) {
+      console.error("Email sending error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP email",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully",
+    });
+  } catch (error) {
+    console.error("Forget password error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+// otp check
+export const otpCheck = async (req, res) => {
+  try {
+    const { otp, email } = req.body;
+
+    const otpNumber = Number(otp);
+
+    const existing_user = await otpSchema.findOne({ email: email });
+
+    if (!existing_user) {
+      return res.status(404).json({
+        success: false,
+        message: "OTP record not found",
+      });
+    }
+
+    const otpCreatedAt = existing_user.createdAt;
+    const currentTime = new Date();
+    const validTime = 5 * 60 * 1000;
+
+    if (currentTime - otpCreatedAt.getTime() > validTime) {
+      await otpSchema.deleteOne({ _id: existing_user._id });
+      return res.status(401).json({
+        success: false,
+        message: "OTP expired",
+      });
+    }
+
+    if (existing_user.otp === otpNumber) {
+      existing_user.isVerified = true;
+      await existing_user.save();
+      return res.status(200).json({
+        success: true,
+        message: "OTP verified successfully",
+      });
+    }
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid OTP",
+    });
+  } catch (error) {
+    console.error("OTP check error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// reset password
+export const resetPassword = async (req, res) => {
+  try {
+    await dbconnect(); 
+    
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+    
+    const otp = await otpSchema.findOne({ email: email });
+    
+    if (!otp) {
+      return res.status(401).json({
+        success: false,
+        message: "OTP does not exist or has expired",
+      });
+    }
+    
+    if (otp.isVerified !== true) {
+      return res.status(401).json({
+        success: false,
+        message: "OTP not verified",
+      });
+    }
+    
+
+    const existing_user = await user.findOne({ email }).select('+password');
+    
+    if (!existing_user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    
+
+    if (!existing_user.password) {
+      console.error("Password field is missing for user:", email);
+      return res.status(500).json({
+        success: false,
+        message: "Account error - please contact support",
+      });
+    }
+    
+    const passwordMatch = await bcrypt.compare(password, existing_user.password);
+    
+    if (passwordMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "New password cannot be the same as old password",
+      });
+    }
+    
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    existing_user.password = hashedPassword;
+    await existing_user.save(); 
+    
+    await otpSchema.findByIdAndDelete(otp._id);
+    
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+    
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
   }
 };
