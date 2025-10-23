@@ -41,7 +41,7 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
         toast.success(response.data.message || "Profile picture uploaded successfully!");
         onImageUpload(response.data.url);
         reset();
-        onClose(); // Close modal after successful upload
+        onClose();
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -49,7 +49,7 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
     }
   };
 
-  // ✅ FIX: Delete profile picture with proper error handling
+ 
   const handleDelete = async () => {
     try {
       const response = await axios.delete(`${API_URL}/delete-profile`, {
@@ -58,25 +58,19 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
 
       if (response.data.success) {
         toast.success(response.data.message || "Profile picture deleted successfully!");
-        // ✅ FIX: Pass null instead of empty string
-        onImageUpload(null);
-        // Also clear from localStorage
+        onImageUpload("");
         localStorage.removeItem("profileImage");
-        onClose(); // Close modal after successful deletion
+        onClose();
       } else {
         toast.error(response.data.message || "Delete failed!");
       }
     } catch (error) {
       console.error("Delete error:", error);
-      // Better error handling
       if (error.response) {
-        // Server responded with error
         toast.error(error.response.data?.message || "Failed to delete profile picture!");
       } else if (error.request) {
-        // Request made but no response
         toast.error("No response from server. Please check your connection.");
       } else {
-        // Something else happened
         toast.error("An error occurred. Please try again.");
       }
     }
@@ -99,14 +93,14 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
             Update Profile Photo
           </h1>
 
-          {currentImage && (
+          {currentImage && currentImage.trim() !== "" && (
             <div className="mb-4">
               <img
                 src={currentImage}
                 alt="Current Profile"
                 className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
                 onError={(e) => {
-                  e.target.src = ""; // Fallback if image fails to load
+                  e.target.src = ""; 
                 }}
               />
             </div>
@@ -146,7 +140,7 @@ export const ProfileModal = ({ isOpen, onClose, onImageUpload, currentImage }) =
             </button>
           </form>
 
-          {currentImage && (
+          {currentImage && currentImage.trim() !== "" && (
             <button
               onClick={handleDelete}
               className="flex items-center justify-center gap-2 mt-4 py-2 px-6 bg-red-500 text-white rounded-lg text-lg font-semibold shadow-md hover:bg-red-600 hover:scale-[1.03] active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-300"

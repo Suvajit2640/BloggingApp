@@ -48,44 +48,45 @@ export const Login = () => {
     }
   };
 
-  const onSubmit = async (data) => {
-    try {
-      const response = await axios.post(`${API_URL}/login`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      // ✅ FIX: Properly destructure profilePic from response
-      const { token, refreshToken, username, profilePic } = response.data;
-      
-      // Store tokens and user info
-      localStorage.setItem("accessToken", token);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("username", username);
-      
-      // ✅ FIX: Store profile image from backend response
-      localStorage.setItem("profileImage", profilePic || "");
-
-      // Set default authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      if (response.data.success) {
-        notify("success");
-        setIsLogin(true);
-        navigate("/Notes", { replace: true });
-      } else {
-        notify("fail");
-      }
-
-    } catch (error) {
-      if (error.response && error.response.data.message === "Please verify your email before logging in") {
-        notify("verify error");
-      } else {
-        notify("fail");
-      }
+  
+const onSubmit = async (data) => {
+  try {
+    const response = await axios.post(`${API_URL}/login`, data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+           
+    const { token, refreshToken, username, profilePic } = response.data;
+           
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("username", username);
+           
+    if (profilePic && profilePic.trim() !== "") {
+      localStorage.setItem("profileImage", profilePic);
+    } else {
+      localStorage.removeItem("profileImage");
     }
-  };
+     
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+     
+    if (response.data.success) {
+      notify("success");
+      setIsLogin(true);
+      navigate("/Notes", { replace: true });
+    } else {
+      notify("fail");
+    }
+   
+  } catch (error) {
+    if (error.response && error.response.data.message === "Please verify your email before logging in") {
+      notify("verify error");
+    } else {
+      notify("fail");
+    }
+  }
+};
 
   return (
     <div className=" flex min-h-[90vh] items-center justify-center  p-4 sm:p-6">

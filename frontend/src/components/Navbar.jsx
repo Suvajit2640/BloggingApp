@@ -22,15 +22,16 @@ export const Navbar = () => {
   const displayUsername = username ? username.split(" ")[0].trim() : "User";
   const access = localStorage.getItem("accessToken");
 
-  // ✅ FIX: Single useEffect to handle login state and profile image
   useEffect(() => {
     if (access) {
       setIsLogin(true);
       
       // Load profile image from localStorage first (for immediate display)
       const storedImage = localStorage.getItem("profileImage");
-      if (storedImage) {
+      if (storedImage && storedImage.trim() !== "") {
         setProfileImage(storedImage);
+      } else {
+        setProfileImage(null);
       }
 
       // Then fetch fresh profile data from backend
@@ -40,9 +41,12 @@ export const Navbar = () => {
             headers: { Authorization: `Bearer ${access}` },
           });
           
-          if (res.data.success && res.data.profilePic) {
+          if (res.data.success && res.data.profilePic && res.data.profilePic.trim() !== "") {
             localStorage.setItem("profileImage", res.data.profilePic);
             setProfileImage(res.data.profilePic);
+          } else {
+            localStorage.removeItem("profileImage");
+            setProfileImage(null);
           }
         } catch (err) {
           console.error("Profile fetch failed:", err);
@@ -78,15 +82,21 @@ export const Navbar = () => {
   };
 
   const handleImageUpload = (imageUrl) => {
-    localStorage.setItem("profileImage", imageUrl);
-    setProfileImage(imageUrl);
+    // ✅ FIXED: Handle both empty string and null
+    if (imageUrl && imageUrl.trim() !== "") {
+      localStorage.setItem("profileImage", imageUrl);
+      setProfileImage(imageUrl);
+    } else {
+      localStorage.removeItem("profileImage");
+      setProfileImage(null);
+    }
   };
 
   const closeMenu = () => setIsMenuOpen(false);
 
   const renderProfileWidget = ({ isMobile = false }) => (
     <div className="relative cursor-pointer" onClick={openProfileModal}>
-      {profileImage ? (
+      {profileImage && profileImage.trim() !== "" ? (
         <img
           src={profileImage}
           alt="Profile"
@@ -124,7 +134,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className=" bg-cyan-100 shadow-lg sticky top-0 z-50">
+      <nav className="bg-cyan-100 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-1 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex-shrink-0">
