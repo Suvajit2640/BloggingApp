@@ -1,5 +1,17 @@
 import express from "express";
-import { loginUser, logoutUser, registerUser } from "../controllers/userController.js";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  getAllUsers,
+  sendFriendRequest,
+  getFriendRequests,
+  acceptFriendRequest,
+  removeFriend,
+  blockUser,
+  getBlockedUsers,
+  unblockUser,
+} from "../controllers/userController.js";
 import { verifyToken, verifyRefreshToken } from "../middleware/authMiddleware.js";
 import { validate } from "../middleware/validate.js";
 import { signinUser, signupUser } from "../validators/dataValidation.js";
@@ -13,24 +25,45 @@ import { getProfile } from "../controllers/userController.js";
 import { forgetPassword } from "../controllers/userController.js";
 import { otpCheck } from "../controllers/userController.js";
 import { resetPassword } from "../controllers/userController.js";
+
 const route = express.Router();
 
 route.get("/verify", verifyToken);
 route.post("/register", validate(signupUser), registerUser);
 route.post("/login", validate(signinUser), loginUser);
 route.patch("/logout", isLoggedIn, logoutUser);
-route.get('/getAccessToken', verifyRefreshToken, isLoggedIn, generateAccessToken);
-route.post("/upload-profile", decodeToken, upload.single("profilePic"), async (req, res) => {
-  try {
-    await uploadProfilePic(req, res);
-  } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+route.get("/getAccessToken", verifyRefreshToken, isLoggedIn, generateAccessToken);
+route.post(
+  "/upload-profile",
+  decodeToken,
+  upload.single("profilePic"),
+  async (req, res) => {
+    try {
+      await uploadProfilePic(req, res);
+    } catch (err) {
+      res.status(400).json({ success: false, message: err.message });
+    }
   }
-});
-route.delete("/delete-profile",decodeToken, deleteProfilePic);
+);
+route.delete("/delete-profile", decodeToken, deleteProfilePic);
 route.get("/profile", decodeToken, getProfile);
 route.post("/forgetPassword", forgetPassword);
 route.post("/verifyOtp", otpCheck);
 route.post("/resetPassword", resetPassword);
+
+// social / friends
+route.get("/users", decodeToken, isLoggedIn, getAllUsers);
+route.post("/friend-request", decodeToken, isLoggedIn, sendFriendRequest);
+route.get("/friend-request", decodeToken, isLoggedIn, getFriendRequests);
+route.patch(
+  "/friend-request/:id/accept",
+  decodeToken,
+  isLoggedIn,
+  acceptFriendRequest
+);
+route.delete("/friend/:userId", decodeToken, isLoggedIn, removeFriend);
+route.post("/block", decodeToken, isLoggedIn, blockUser);
+route.get("/block", decodeToken, isLoggedIn, getBlockedUsers);
+route.delete("/block/:userId", decodeToken, isLoggedIn, unblockUser);
 
 export default route;

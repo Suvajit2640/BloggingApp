@@ -8,6 +8,9 @@ import dbconnect from "../config/dbConnection.js";
 import { v2 as cloudinary } from "cloudinary";
 import otpSchema from "../models/otpSchema.js";
 import sendOtpEmail from "../emailVerify/sendOtpEmail.js";
+import FriendRequest from "../models/friendRequestSchema.js";
+import Block from "../models/blockSchema.js";
+import { getIo } from "../socket.js";
 
 config();
 
@@ -26,6 +29,7 @@ const generateToken = (user_id, expire_time) => {
 export const registerUser = async (req, res) => {
   try {
     await dbconnect();
+    console.log("hello")
     // console.log("EXPIRE_TIME:", process.env.EXPIRE_TIME);
     // console.log("EXPIRE_TIME type:", typeof process.env.EXPIRE_TIME);
     // console.log("EXPIRE_TIME length:", process.env.EXPIRE_TIME?.length);
@@ -138,6 +142,7 @@ export const loginUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      userId: existing_user._id,
       username: existing_user.userName,
       token: accessToken,
       refreshToken: refreshToken,
@@ -443,6 +448,318 @@ export const resetPassword = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || "Internal server error",
+    });
+  }
+};
+
+// --------- Social / Friends ----------
+
+export const getAllUsers = async (req, res) => {
+  try {
+    await dbconnect();
+    const currentUserId = req.userId;
+
+    const users = await user
+      .find({ _id: { $ne: currentUserId } })
+      .select("userName profilePic");
+
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch users",
+    });
+  }
+};
+
+export const sendFriendRequest = async (req, res) => {
+  try {
+    await dbconnect();
+    const fromUserId = req.userId;
+    const { toUserId } = req.body;
+
+    if (!toUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "toUserId is required",
+      });
+    }
+
+    if (String(fromUserId) === String(toUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot send a friend request to yourself",
+      });
+    }
+
+    const targetUser = await user.findById(toUserId);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Target user not found",
+      });
+    }
+
+    const existing = await FriendRequest.findOne({
+      $or: [
+        { fromUserId, toUserId },
+        { fromUserId: toUserId, toUserId: fromUserId },
+      ],
+      status: { $in: ["pending", "accepted"] },
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message:
+          existing.status === "accepted"
+            ? "You are already friends"
+            : "Friend request already pending",
+      });
+    }
+
+    // Do not allow sending requests when there is a block between users
+    const blocked = await Block.findOne({
+      $or: [
+        { blockerUserId: fromUserId, blockedUserId: toUserId },
+        { blockerUserId: toUserId, blockedUserId: fromUserId },
+      ],
+    });
+
+    if (blocked) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot send request to this user",
+      });
+    }
+
+    const request = await FriendRequest.create({
+      fromUserId,
+      toUserId,
+    });
+
+    const io = getIo();
+    if (io) {
+      io.to(String(fromUserId)).to(String(toUserId)).emit("friend_request_updated");
+    }
+
+    return res.status(201).json({
+      success: true,
+      request,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to send friend request",
+    });
+  }
+};
+
+export const getFriendRequests = async (req, res) => {
+  try {
+    await dbconnect();
+    const currentUserId = req.userId;
+
+    const requests = await FriendRequest.find({
+      $or: [{ fromUserId: currentUserId }, { toUserId: currentUserId }],
+    })
+      .populate("fromUserId", "userName profilePic")
+      .populate("toUserId", "userName profilePic")
+      .lean();
+
+    return res.status(200).json({
+      success: true,
+      requests,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch friend requests",
+    });
+  }
+};
+
+export const acceptFriendRequest = async (req, res) => {
+  try {
+    await dbconnect();
+    const currentUserId = req.userId;
+    const { id } = req.params;
+
+    const request = await FriendRequest.findById(id);
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        message: "Friend request not found",
+      });
+    }
+
+    if (String(request.toUserId) !== String(currentUserId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to accept this request",
+      });
+    }
+
+    if (request.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: "Request is not pending",
+      });
+    }
+
+    request.status = "accepted";
+    await request.save();
+
+    const io = getIo();
+    if (io) {
+      io
+        .to(String(request.fromUserId))
+        .to(String(request.toUserId))
+        .emit("friend_request_updated");
+    }
+
+    return res.status(200).json({
+      success: true,
+      request,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to accept friend request",
+    });
+  }
+};
+
+export const removeFriend = async (req, res) => {
+  try {
+    await dbconnect();
+    const currentUserId = req.userId;
+    const { userId: otherUserId } = req.params;
+
+    await FriendRequest.deleteMany({
+      status: "accepted",
+      $or: [
+        { fromUserId: currentUserId, toUserId: otherUserId },
+        { fromUserId: otherUserId, toUserId: currentUserId },
+      ],
+    });
+
+    const io = getIo();
+    if (io) {
+      io.to(String(currentUserId)).to(String(otherUserId)).emit("friend_request_updated");
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend removed successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to remove friend",
+    });
+  }
+};
+
+export const blockUser = async (req, res) => {
+  try {
+    await dbconnect();
+    const blockerUserId = req.userId;
+    const { blockedUserId } = req.body;
+
+    if (!blockedUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "blockedUserId is required",
+      });
+    }
+
+    if (String(blockerUserId) === String(blockedUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot block yourself",
+      });
+    }
+
+    await Block.findOneAndUpdate(
+      { blockerUserId, blockedUserId },
+      { blockerUserId, blockedUserId },
+      { upsert: true, new: true }
+    );
+
+    // Remove any friend relationships between these users
+    await FriendRequest.deleteMany({
+      $or: [
+        { fromUserId: blockerUserId, toUserId: blockedUserId },
+        { fromUserId: blockedUserId, toUserId: blockerUserId },
+      ],
+    });
+
+    const io = getIo();
+    if (io) {
+      io.to(String(blockerUserId)).to(String(blockedUserId)).emit("friend_request_updated");
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User blocked successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to block user",
+    });
+  }
+};
+
+export const getBlockedUsers = async (req, res) => {
+  try {
+    await dbconnect();
+    const blockerUserId = req.userId;
+
+    const blocks = await Block.find({ blockerUserId })
+      .populate("blockedUserId", "userName profilePic")
+      .lean();
+
+    return res.status(200).json({
+      success: true,
+      blocks,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch blocked users",
+    });
+  }
+};
+
+export const unblockUser = async (req, res) => {
+  try {
+    await dbconnect();
+    const blockerUserId = req.userId;
+    const { userId: blockedUserId } = req.params;
+
+    await Block.deleteOne({ blockerUserId, blockedUserId });
+
+    const io = getIo();
+    if (io) {
+      io
+        .to(String(blockerUserId))
+        .to(String(blockedUserId))
+        .emit("friend_request_updated");
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User unblocked successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to unblock user",
     });
   }
 };
