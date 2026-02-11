@@ -3,7 +3,7 @@ import { config } from "dotenv";
 
 config();
 
-const DB_URL = process.env.LOCAL_DB;
+const DB_URL = process.env.MONGO_URI;
 let isConnected = false;
 
 async function dbconnect() {
