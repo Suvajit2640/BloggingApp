@@ -13,6 +13,7 @@ import { ResetPassword } from "./pages/ResetPassword";
 
 import { NoteCard } from "./components/NoteCard";
 import { ManipulateNote } from "./components/ManipulateNote";
+import { Chat } from "./components/Chat";
 
 function App() {
   const [isLogin, setIsLogin] = useState();
@@ -31,6 +32,7 @@ function App() {
           <Route path="/Notes" element={<NotesPage />} />
           <Route path="/createNote" element={<ManipulateNote />} />
           <Route path="/NoteCard" element={NoteCard}></Route>
+          <Route path="/chat" element={<Chat />} />
           <Route path="/ForgetPassword" element={<ForgetPassword />} />
           <Route path="/verify-otp" element={<OtpVerify />} />
           <Route path="/reset-password" element={<ResetPassword />} />

@@ -2,7 +2,7 @@ import React, { useEffect, useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import { LuCircleUserRound } from "react-icons/lu";
-import { Menu, X } from 'lucide-react';
+import { Menu, X } from "lucide-react";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { ProfileModal } from "./profile";
@@ -17,6 +17,8 @@ export const Navbar = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [acceptedCount, setAcceptedCount] = useState(0);
 
   const username = localStorage.getItem("username");
   const displayUsername = username ? username.split(" ")[0].trim() : "User";
@@ -25,7 +27,7 @@ export const Navbar = () => {
   useEffect(() => {
     if (access) {
       setIsLogin(true);
-      
+
       // Load profile image from localStorage first (for immediate display)
       const storedImage = localStorage.getItem("profileImage");
       if (storedImage && storedImage.trim() !== "") {
@@ -34,14 +36,18 @@ export const Navbar = () => {
         setProfileImage(null);
       }
 
+      const authConfig = { headers: { Authorization: `Bearer ${access}` } };
+
       // Then fetch fresh profile data from backend
       const fetchProfile = async () => {
         try {
-          const res = await axios.get(`${API_URL}/profile`, {
-            headers: { Authorization: `Bearer ${access}` },
-          });
-          
-          if (res.data.success && res.data.profilePic && res.data.profilePic.trim() !== "") {
+          const res = await axios.get(`${API_URL}/profile`, authConfig);
+
+          if (
+            res.data.success &&
+            res.data.profilePic &&
+            res.data.profilePic.trim() !== ""
+          ) {
             localStorage.setItem("profileImage", res.data.profilePic);
             setProfileImage(res.data.profilePic);
           } else {
@@ -53,10 +59,36 @@ export const Navbar = () => {
         }
       };
 
+      const fetchFriendStats = async () => {
+        try {
+          const res = await axios.get(`${API_URL}/friend-request`, authConfig);
+          if (res.data.success && Array.isArray(res.data.requests)) {
+            const pending = res.data.requests.filter(
+              (r) => r.status === "pending"
+            ).length;
+            const accepted = res.data.requests.filter(
+              (r) => r.status === "accepted"
+            ).length;
+            setPendingCount(pending);
+            setAcceptedCount(accepted);
+          } else {
+            setPendingCount(0);
+            setAcceptedCount(0);
+          }
+        } catch (err) {
+          console.error("Friend stats fetch failed:", err);
+          setPendingCount(0);
+          setAcceptedCount(0);
+        }
+      };
+
       fetchProfile();
+      fetchFriendStats();
     } else {
       setIsLogin(false);
       setProfileImage(null);
+      setPendingCount(0);
+      setAcceptedCount(0);
     }
   }, [access, setIsLogin]);
 
@@ -147,9 +179,19 @@ export const Navbar = () => {
             <div className="hidden md:flex space-x-6 items-center">
               {isLogin ? (
                 <div className="flex items-center space-x-5">
-                  <span className="font-semibold text-xl text-gray-700">
-                    Welcome, {displayUsername}
-                  </span>
+                  <div className="flex flex-col items-end mr-2">
+                    <span className="font-semibold text-xl text-gray-700">
+                      Welcome, {displayUsername}
+                    </span>
+                    <div className="flex gap-2 mt-1">
+                      <span className="px-2 py-0.5 rounded-full text-[11px] bg-yellow-100 text-yellow-700 border border-yellow-300">
+                        Pending: {pendingCount}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[11px] bg-green-100 text-green-700 border border-green-300">
+                        Friends: {acceptedCount}
+                      </span>
+                    </div>
+                  </div>
                   {renderProfileWidget({ isMobile: false })}
                   <button
                     onClick={() => setShowLogoutModal(true)}
@@ -192,9 +234,20 @@ export const Navbar = () => {
                 <span className="font-semibold text-lg text-gray-700 px-1">
                   Signed in as: {displayUsername}
                 </span>
+                <div className="flex gap-2 px-1">
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-yellow-100 text-yellow-700 border border-yellow-300">
+                    Pending: {pendingCount}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-green-100 text-green-700 border border-green-300">
+                    Friends: {acceptedCount}
+                  </span>
+                </div>
 
                 <button
-                  onClick={() => { setShowLogoutModal(true); closeMenu(); }}
+                  onClick={() => {
+                    setShowLogoutModal(true);
+                    closeMenu();
+                  }}
                   className="block w-full text-center px-3 py-2 text-base font-medium text-white bg-red-500 rounded-lg shadow hover:bg-red-600 transition-colors"
                 >
                   Logout

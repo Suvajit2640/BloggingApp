@@ -5,6 +5,7 @@ import { ManipulateNote } from "../components/ManipulateNote";
 import { AddNote } from "../components/AddNote";
 import { SearchNote } from "../components/SearchNote";
 import { PaginateButton } from "../components/PaginateButton";
+import { LuMessagesSquare } from "react-icons/lu";
 
 export const NotesPage = () => {
   const navigate = useNavigate();
@@ -47,16 +48,26 @@ export const NotesPage = () => {
       <div className="py-4 sm:py-6 px-4 sm:px-6 lg:px-8 bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <AddNote setModalOpen={setModalOpen} setType={setType} type={type} />
-          <SearchNote
-            setrender={setrender}
-            render={render}
-            search={search}
-            setSearch={setSearch}
-            sortField={sortField}
-            setSortField={setSortField}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-          />
+          <div className="flex items-center gap-4">
+            <SearchNote
+              setrender={setrender}
+              render={render}
+              search={search}
+              setSearch={setSearch}
+              sortField={sortField}
+              setSortField={setSortField}
+              sortOrder={sortOrder}
+              setSortOrder={setSortOrder}
+            />
+            <button
+              type="button"
+              onClick={() => navigate("/chat")}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold shadow hover:bg-indigo-700 transition-colors"
+            >
+              <LuMessagesSquare className="w-5 h-5" />
+              <span className="hidden sm:inline">Chat</span>
+            </button>
+          </div>
         </div>
       </div>
       
